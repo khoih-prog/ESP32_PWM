@@ -20,11 +20,12 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.0
+  Version: 1.0.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
 *****************************************************************************************************************************/
 #if !defined( ESP32 )
   #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
@@ -41,8 +42,6 @@
 
 #include "ESP32_PWM.h"
 
-#define PIN_D1              1         // Pin D1 mapped to pin GPIO1 of ESP32
-
 #ifndef LED_BUILTIN
   #define LED_BUILTIN       2
 #endif
@@ -57,7 +56,7 @@
 
 #define HW_TIMER_INTERVAL_US      20L
 
-uint32_t startMillis = 0;
+uint32_t startMicros = 0;
 
 // Init ESP32 timer 1
 ESP32Timer ITimer(1);
@@ -71,6 +70,8 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
  
   return true;
 }
+
+//////////////////////////////////////////////////////
 
 #define NUMBER_ISR_PWMS         16
 
@@ -96,6 +97,12 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
 #define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
 #define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32   
+
+//////////////////////////////////////////////////////
+
+#define USING_PWM_FREQUENCY     true
+
+//////////////////////////////////////////////////////
 
 // You can assign pins here. Be carefull to select good pin to use or crash, e.g pin 6-11
 uint32_t PWM_Pin[NUMBER_ISR_PWMS] =
@@ -196,7 +203,7 @@ void doingSomething15()
 {
 }
 
-irqCallback irqCallbackFunc[NUMBER_ISR_PWMS] =
+irqCallback irqCallbackStartFunc[NUMBER_ISR_PWMS] =
 {
   doingSomething0,  doingSomething1,  doingSomething2,  doingSomething3, 
   doingSomething4,  doingSomething5,  doingSomething6,  doingSomething7, 
@@ -222,8 +229,8 @@ void setup()
   // Interval in microsecs
   if (ITimer.attachInterruptInterval(HW_TIMER_INTERVAL_US, TimerHandler))
   {
-    startMillis = millis();
-    Serial.print(F("Starting ITimer OK, millis() = ")); Serial.println(startMillis);
+    startMicros = micros();
+    Serial.print(F("Starting ITimer OK, micros() = ")); Serial.println(startMicros);
   }
   else
     Serial.println(F("Can't set ITimer. Select another freq. or timer"));
@@ -235,17 +242,20 @@ void setup()
     //void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle
     // , timer_callback_p StartCallback = nullptr, timer_callback_p StopCallback = nullptr)
 
-    // You can use this with PWM_Freq in Hz
-    ISR_PWM.setPWM(PWM_Pin[i], PWM_Freq[i], PWM_DutyCycle[i], irqCallbackFunc[i]);
+#if USING_PWM_FREQUENCY
 
-#if USING_MICROS_RESOLUTION
-    // Or using period in microsecs resolution
-    //ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i], irqCallbackFunc[i]);
+    // You can use this with PWM_Freq in Hz
+    ISR_PWM.setPWM(PWM_Pin[i], PWM_Freq[i], PWM_DutyCycle[i], irqCallbackStartFunc[i]);
+
 #else
+  #if USING_MICROS_RESOLUTION
+    // Or using period in microsecs resolution
+    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i], irqCallbackStartFunc[i]);
+  #else
     // Or using period in millisecs resolution
-    //ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i] / 1000, PWM_DutyCycle[i], irqCallbackFunc[i]);
+    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i] / 1000, PWM_DutyCycle[i], irqCallbackStartFunc[i]);
+  #endif
 #endif
-    
   }
 }
 

@@ -20,11 +20,12 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.0
+  Version: 1.0.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
 *****************************************************************************************************************************/
 
 #if !defined( ESP32 )
@@ -36,29 +37,27 @@
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
 // _PWM_LOGLEVEL_ from 0 to 4
 // Don't define _PWM_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define _PWM_LOGLEVEL_                1
+#define _PWM_LOGLEVEL_                4
 
 #define USING_MICROS_RESOLUTION       true    //false 
 
 #include "ESP32_PWM.h"
 
-#define PIN_D1              1         // Pin D1 mapped to pin GPIO1 of ESP32
-
 #ifndef LED_BUILTIN
-#define LED_BUILTIN       2
+  #define LED_BUILTIN       2
 #endif
 
 #ifndef LED_BLUE
-#define LED_BLUE          25
+  #define LED_BLUE          25
 #endif
 
 #ifndef LED_RED
-#define LED_RED           27
+  #define LED_RED           27
 #endif
 
 #define HW_TIMER_INTERVAL_US      20L
 
-uint32_t startMillis = 0;
+uint32_t startMicros = 0;
 
 // Init ESP32 timer 1
 ESP32Timer ITimer(1);
@@ -73,6 +72,8 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
   return true;
 }
+
+//////////////////////////////////////////////////////
 
 #define NUMBER_ISR_PWMS         16
 
@@ -98,6 +99,12 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
 #define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
 #define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32   
+
+//////////////////////////////////////////////////////
+
+#define USING_PWM_FREQUENCY     true
+
+//////////////////////////////////////////////////////
 
 // You can assign pins here. Be carefull to select good pin to use or crash, e.g pin 6-11
 uint32_t PWM_Pin[NUMBER_ISR_PWMS] =
@@ -133,8 +140,6 @@ uint32_t PWM_DutyCycle[NUMBER_ISR_PWMS] =
 
 void setup()
 {
-  pinMode(PIN_D1, OUTPUT);
-
   Serial.begin(115200);
   while (!Serial);
 
@@ -147,30 +152,33 @@ void setup()
   // Interval in microsecs
   if (ITimer.attachInterruptInterval(HW_TIMER_INTERVAL_US, TimerHandler))
   {
-    startMillis = millis();
-    Serial.print(F("Starting ITimer OK, millis() = ")); Serial.println(startMillis);
+    startMicros = micros();
+    Serial.print(F("Starting ITimer OK, micros() = ")); Serial.println(startMicros);
   }
   else
     Serial.println(F("Can't set ITimer. Select another freq. or timer"));
 
   // Just to demonstrate, don't use too many ISR Timers if not absolutely necessary
   // You can use up to 16 timer for each ISR_PWM
-  for (uint16_t i = 0; i < 1  /*NUMBER_ISR_PWMS*/; i++)
+  for (uint16_t i = 0; i < NUMBER_ISR_PWMS; i++)
   {
     //void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle
     // , timer_callback_p StartCallback = nullptr, timer_callback_p StopCallback = nullptr)
 
+#if USING_PWM_FREQUENCY
+
     // You can use this with PWM_Freq in Hz
     ISR_PWM.setPWM(PWM_Pin[i], PWM_Freq[i], PWM_DutyCycle[i]);
 
-#if USING_MICROS_RESOLUTION
-    // Or using period in microsecs resolution
-    //ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i]);
 #else
+  #if USING_MICROS_RESOLUTION
+    // Or using period in microsecs resolution
+    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i]);
+  #else
     // Or using period in millisecs resolution
-    //ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i] / 1000, PWM_DutyCycle[i]);
+    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i] / 1000, PWM_DutyCycle[i]);
+  #endif
 #endif
-
   }
 }
 
