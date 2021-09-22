@@ -20,11 +20,12 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.0
+  Version: 1.0.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
 *****************************************************************************************************************************/
 
 #pragma once
@@ -39,7 +40,7 @@
 #endif
 
 #ifndef ESP32_PWM_VERSION
-  #define ESP32_PWM_VERSION       "ESP32_PWM v1.0.0"
+  #define ESP32_PWM_VERSION       "ESP32_PWM v1.0.1"
 #endif
 
 #ifndef _PWM_LOGLEVEL_
@@ -98,7 +99,8 @@ class ESP32_PWM_ISR
     
     //////////////////////////////////////////////////////////////////
     // PWM
-    void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle, timer_callback StartCallback = nullptr)
+    void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle, timer_callback StartCallback = nullptr,
+                timer_callback StopCallback = nullptr)
     {
       uint32_t period = 0;
       
@@ -117,19 +119,21 @@ class ESP32_PWM_ISR
         PWM_LOGERROR("Error: Invalid frequency, max is 500Hz");
       }
       
-      setupPWMChannel(pin, period, dutycycle, (void *) StartCallback);      
+      setupPWMChannel(pin, period, dutycycle, (void *) StartCallback, (void *) StopCallback);     
     }
 
 #if USING_MICROS_RESOLUTION
     //period in us
-    void setPWM_Period(uint32_t pin, uint32_t period, uint32_t dutycycle, timer_callback StartCallback = nullptr)
+    void setPWM_Period(uint32_t pin, uint32_t period, uint32_t dutycycle, timer_callback StartCallback = nullptr,
+                       timer_callback StopCallback = nullptr)
 #else    
     // PWM
     //period in ms
-    void setPWM_Period(uint32_t pin, uint32_t period, uint32_t dutycycle, timer_callback StartCallback = nullptr)
+    void setPWM_Period(uint32_t pin, uint32_t period, uint32_t dutycycle, timer_callback StartCallback = nullptr,
+                       timer_callback StopCallback = nullptr)
 #endif    
     {     
-      setupPWMChannel(pin, period, dutycycle, (void *) StartCallback);      
+      setupPWMChannel(pin, period, dutycycle, (void *) StartCallback, (void *) StopCallback);       
     }    
     
     //////////////////////////////////////////////////////////////////
@@ -172,7 +176,7 @@ class ESP32_PWM_ISR
     // low level function to initialize and enable a new PWM channel
     // returns the PWM channel number (channelNum) on success or
     // -1 on failure (f == NULL) or no free PWM channels 
-    int setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutycycle, void* cbFunc = nullptr);
+    int setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutycycle, void* cbStartFunc = nullptr, void* cbStopFunc = nullptr);
 
     // find the first available slot
     int findFirstFreeSlot();
@@ -188,7 +192,8 @@ class ESP32_PWM_ISR
       uint32_t      period;             // period value, in us / ms
       uint32_t      onTime;             // onTime value, ( period * dutyCycle / 100 ) us  / ms
       
-      void*         callback;           // pointer to the callback function
+      void*         callbackStart;      // pointer to the callback function when PWM pulse starts (HIGH)
+      void*         callbackStop;       // pointer to the callback function when PWM pulse stops (LOW)
       
       ////////////////////////////////////////////////////////////
       
@@ -207,6 +212,7 @@ class ESP32_PWM_ISR
     // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
     portMUX_TYPE PWM_Mux = portMUX_INITIALIZER_UNLOCKED;
 };
+
 
 #endif    // PWM_ISR_GENERIC_H
 

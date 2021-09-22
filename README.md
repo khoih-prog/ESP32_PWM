@@ -54,7 +54,7 @@
 
 ## Features
 
-This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2-based board to create and output PWM to pins.
+This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2-based board to create and output PWM to pins. Becayse this library doesn't use the powerful hardware-controlled PWM with limitations, the maximum PWM frequency is currently limited at **500Hz**, which is suitable for many real-life applications.
 
 ---
 
@@ -286,7 +286,7 @@ Before using any Timer, you have to make sure the Timer has not been used by any
 
 #define HW_TIMER_INTERVAL_US      20L
 
-volatile uint32_t startMillis = 0;
+volatile uint32_t startMicros = 0;
 
 // Init ESP32 timer 1
 ESP32Timer ITimer(1);
@@ -343,7 +343,8 @@ typedef void (*irqCallback)  ();
 typedef struct
 {
   uint32_t      PWM_Pin;
-  irqCallback   irqCallbackFunc;
+  irqCallback   irqCallbackStartFunc;
+  irqCallback   irqCallbackStopFunc;
 
 #if USING_PWM_FREQUENCY  
   uint32_t      PWM_Freq;
@@ -352,20 +353,30 @@ typedef struct
 #endif
   
   uint32_t      PWM_DutyCycle;
-  unsigned long deltaMillis;
-  unsigned long previousMillis;
+  
+  uint64_t      deltaMicrosStart;
+  uint64_t      previousMicrosStart;
+
+  uint64_t      deltaMicrosStop;
+  uint64_t      previousMicrosStop;
+  
 } ISR_PWM_Data;
 
 // In NRF52, avoid doing something fancy in ISR, for example Serial.print()
 // The pure simple Serial.prints here are just for demonstration and testing. Must be eliminate in working environment
 // Or you can get this run-time error / crash
 
-void doingSomething(int index);
+void doingSomethingStart(int index);
+
+void doingSomethingStop(int index);
 
 #else   // #if USE_COMPLEX_STRUCT
 
-volatile unsigned long deltaMillis    [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-volatile unsigned long previousMillis [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile unsigned long deltaMicrosStart    [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile unsigned long previousMicrosStart [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+volatile unsigned long deltaMicrosStop     [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile unsigned long previousMicrosStop  [NUMBER_ISR_PWMS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 // You can assign pins here. Be carefull to select good pin to use or crash, e.g pin 6-11
 uint32_t PWM_Pin[NUMBER_ISR_PWMS] =
@@ -396,12 +407,21 @@ uint32_t PWM_DutyCycle[NUMBER_ISR_PWMS] =
   60, 65, 70, 75, 80, 85, 90, 95
 };
 
-void doingSomething(int index)
+void doingSomethingStart(int index)
 {
-  unsigned long currentMillis  = millis();
+  unsigned long currentMicros  = micros();
 
-  deltaMillis[index]    = currentMillis - previousMillis[index];
-  previousMillis[index] = currentMillis;
+  deltaMicrosStart[index]    = currentMicros - previousMicrosStart[index];
+  previousMicrosStart[index] = currentMicros;
+}
+
+void doingSomethingStop(int index)
+{
+  unsigned long currentMicros  = micros();
+
+  // Count from start to stop PWM pulse
+  deltaMicrosStop[index]    = currentMicros - previousMicrosStart[index];
+  previousMicrosStop[index] = currentMicros;
 }
 
 #endif    // #if USE_COMPLEX_STRUCT
@@ -410,84 +430,166 @@ void doingSomething(int index)
 // Shared
 ////////////////////////////////////
 
-void doingSomething0()
+void doingSomethingStart0()
 {
-  doingSomething(0);
+  doingSomethingStart(0);
 }
 
-void doingSomething1()
+void doingSomethingStart1()
 {
-  doingSomething(1);
+  doingSomethingStart(1);
 }
 
-void doingSomething2()
+void doingSomethingStart2()
 {
-  doingSomething(2);
+  doingSomethingStart(2);
 }
 
-void doingSomething3()
+void doingSomethingStart3()
 {
-  doingSomething(3);
+  doingSomethingStart(3);
 }
 
-void doingSomething4()
+void doingSomethingStart4()
 {
-  doingSomething(4);
+  doingSomethingStart(4);
 }
 
-void doingSomething5()
+void doingSomethingStart5()
 {
-  doingSomething(5);
+  doingSomethingStart(5);
 }
 
-void doingSomething6()
+void doingSomethingStart6()
 {
-  doingSomething(6);
+  doingSomethingStart(6);
 }
 
-void doingSomething7()
+void doingSomethingStart7()
 {
-  doingSomething(7);
+  doingSomethingStart(7);
 }
 
-void doingSomething8()
+void doingSomethingStart8()
 {
-  doingSomething(8);
+  doingSomethingStart(8);
 }
 
-void doingSomething9()
+void doingSomethingStart9()
 {
-  doingSomething(9);
+  doingSomethingStart(9);
 }
 
-void doingSomething10()
+void doingSomethingStart10()
 {
-  doingSomething(10);
+  doingSomethingStart(10);
 }
 
-void doingSomething11()
+void doingSomethingStart11()
 {
-  doingSomething(11);
+  doingSomethingStart(11);
 }
 
-void doingSomething12()
+void doingSomethingStart12()
 {
-  doingSomething(12);
+  doingSomethingStart(12);
 }
 
-void doingSomething13()
+void doingSomethingStart13()
 {
-  doingSomething(13);
+  doingSomethingStart(13);
 }
 
-void doingSomething14()
+void doingSomethingStart14()
 {
-  doingSomething(14);
+  doingSomethingStart(14);
 }
 
-void doingSomething15()
+void doingSomethingStart15()
 {
-  doingSomething(15);
+  doingSomethingStart(15);
+}
+
+//////////////////////////////////////////////////////
+
+void doingSomethingStop0()
+{
+  doingSomethingStop(0);
+}
+
+void doingSomethingStop1()
+{
+  doingSomethingStop(1);
+}
+
+void doingSomethingStop2()
+{
+  doingSomethingStop(2);
+}
+
+void doingSomethingStop3()
+{
+  doingSomethingStop(3);
+}
+
+void doingSomethingStop4()
+{
+  doingSomethingStop(4);
+}
+
+void doingSomethingStop5()
+{
+  doingSomethingStop(5);
+}
+
+void doingSomethingStop6()
+{
+  doingSomethingStop(6);
+}
+
+void doingSomethingStop7()
+{
+  doingSomethingStop(7);
+}
+
+void doingSomethingStop8()
+{
+  doingSomethingStop(8);
+}
+
+void doingSomethingStop9()
+{
+  doingSomethingStop(9);
+}
+
+void doingSomethingStop10()
+{
+  doingSomethingStop(10);
+}
+
+void doingSomethingStop11()
+{
+  doingSomethingStop(11);
+}
+
+void doingSomethingStop12()
+{
+  doingSomethingStop(12);
+}
+
+void doingSomethingStop13()
+{
+  doingSomethingStop(13);
+}
+
+void doingSomethingStop14()
+{
+  doingSomethingStop(14);
+}
+
+void doingSomethingStop15()
+{
+  doingSomethingStop(15);
 }
 
 //////////////////////////////////////////////////////
@@ -498,66 +600,84 @@ void doingSomething15()
   
   ISR_PWM_Data curISR_PWM_Data[NUMBER_ISR_PWMS] =
   {
-    //irqCallbackFunc, PWM_Period, deltaMillis, previousMillis
-    { PIN_D1,       doingSomething0,   1,   5, 0, 0 },
-    { LED_BUILTIN,  doingSomething1,   2,  10, 0, 0 },
-    { PIN_D3,       doingSomething2,   3,  20, 0, 0 },
-    { PIN_D4,       doingSomething3,   4,  30, 0, 0 },
-    { PIN_D5,       doingSomething4,   5,  40, 0, 0 },
-    { PIN_D12,      doingSomething5,   6,  45, 0, 0 },
-    { PIN_D13,      doingSomething6,   7,  50, 0, 0 },
-    { PIN_D14,      doingSomething7,   8,  55, 0, 0 },
-    { PIN_D15,      doingSomething8,   9,  60, 0, 0 },
-    { PIN_D16,      doingSomething9,   10, 65, 0, 0 },
-    { PIN_D17,      doingSomething10,  15, 70, 0, 0 },
-    { PIN_D18,      doingSomething11,  20, 75, 0, 0 },
-    { PIN_D19,      doingSomething12,  25, 80, 0, 0 },
-    { PIN_D21,      doingSomething13,  30, 85, 0, 0 },
-    { PIN_D22,      doingSomething14,  40, 90, 0, 0 },
-    { PIN_D23,      doingSomething15,  50, 95, 0, 0 }
+    //irqCallbackStartFunc, PWM_Period, deltaMicrosStart, previousMicrosStart
+    { PIN_D1,       doingSomethingStart0,    doingSomethingStop0,    1,   5, 0, 0, 0, 0 },
+    { LED_BUILTIN,  doingSomethingStart1,    doingSomethingStop1,    2,  10, 0, 0, 0, 0 },
+    { PIN_D3,       doingSomethingStart2,    doingSomethingStop2,    3,  20, 0, 0, 0, 0 },
+    { PIN_D4,       doingSomethingStart3,    doingSomethingStop3,    4,  30, 0, 0, 0, 0 },
+    { PIN_D5,       doingSomethingStart4,    doingSomethingStop4,    5,  40, 0, 0, 0, 0 },
+    { PIN_D12,      doingSomethingStart5,    doingSomethingStop5,    6,  45, 0, 0, 0, 0 },
+    { PIN_D13,      doingSomethingStart6,    doingSomethingStop6,    7,  50, 0, 0, 0, 0 },
+    { PIN_D14,      doingSomethingStart7,    doingSomethingStop7,    8,  55, 0, 0, 0, 0 },
+    { PIN_D15,      doingSomethingStart8,    doingSomethingStop8,    9,  60, 0, 0, 0, 0 },
+    { PIN_D16,      doingSomethingStart9,    doingSomethingStop9,   10,  65, 0, 0, 0, 0 },
+    { PIN_D17,      doingSomethingStart10,   doingSomethingStop10,  15,  70, 0, 0, 0, 0 },
+    { PIN_D18,      doingSomethingStart11,   doingSomethingStop11,  20,  75, 0, 0, 0, 0 },
+    { PIN_D19,      doingSomethingStart12,   doingSomethingStop12,  25,  80, 0, 0, 0, 0 },
+    { PIN_D21,      doingSomethingStart13,   doingSomethingStop13,  30,  85, 0, 0, 0, 0 },
+    { PIN_D22,      doingSomethingStart14,   doingSomethingStop14,  40,  90, 0, 0, 0, 0 },
+    { PIN_D23,      doingSomethingStart15,   doingSomethingStop15,  50,  95, 0, 0, 0, 0 }
   };
   
   #else   // #if USING_PWM_FREQUENCY
   
   ISR_PWM_Data curISR_PWM_Data[NUMBER_ISR_PWMS] =
   {
-    //irqCallbackFunc, PWM_Period, deltaMillis, previousMillis
-    { PIN_D1,       doingSomething0,   1000000L,  5, 0, 0 },
-    { LED_BUILTIN,  doingSomething1,    500000L, 10, 0, 0 },
-    { PIN_D3,       doingSomething2,    333333L, 20, 0, 0 },
-    { PIN_D4,       doingSomething3,    250000L, 30, 0, 0 },
-    { PIN_D5,       doingSomething4,    200000L, 40, 0, 0 },
-    { PIN_D12,      doingSomething5,    166667L, 45, 0, 0 },
-    { PIN_D13,      doingSomething6,    142857L, 50, 0, 0 },
-    { PIN_D14,      doingSomething7,    125000L, 55, 0, 0 },
-    { PIN_D15,      doingSomething8,    111111L, 60, 0, 0 },
-    { PIN_D16,      doingSomething9,    100000L, 65, 0, 0 },
-    { PIN_D17,      doingSomething10,    66667L, 70, 0, 0 },
-    { PIN_D18,      doingSomething11,    50000L, 75, 0, 0 },
-    { PIN_D19,      doingSomething12,    40000L, 80, 0, 0 },
-    { PIN_D21,      doingSomething13,    33333L, 85, 0, 0 },
-    { PIN_D22,      doingSomething14,    25000L, 90, 0, 0 },
-    { PIN_D23,      doingSomething15,    20000L, 95, 0, 0 }
+    //irqCallbackStartFunc, PWM_Period, deltaMicrosStart, previousMicrosStart
+    { PIN_D1,       doingSomethingStart0,     doingSomethingStop0,   1000000L,  5, 0, 0, 0, 0 },
+    { LED_BUILTIN,  doingSomethingStart1,     doingSomethingStop1,    500000L, 10, 0, 0, 0, 0 },
+    { PIN_D3,       doingSomethingStart2,     doingSomethingStop2,    333333L, 20, 0, 0, 0, 0 },
+    { PIN_D4,       doingSomethingStart3,     doingSomethingStop3,    250000L, 30, 0, 0, 0, 0 },
+    { PIN_D5,       doingSomethingStart4,     doingSomethingStop4,    200000L, 40, 0, 0, 0, 0 },
+    { PIN_D12,      doingSomethingStart5,     doingSomethingStop5,    166667L, 45, 0, 0, 0, 0 },
+    { PIN_D13,      doingSomethingStart6,     doingSomethingStop6,    142857L, 50, 0, 0, 0, 0 },
+    { PIN_D14,      doingSomethingStart7,     doingSomethingStop7,    125000L, 55, 0, 0, 0, 0 },
+    { PIN_D15,      doingSomethingStart8,     doingSomethingStop8,    111111L, 60, 0, 0, 0, 0 },
+    { PIN_D16,      doingSomethingStart9,     doingSomethingStop9,    100000L, 65, 0, 0, 0, 0 },
+    { PIN_D17,      doingSomethingStart10,    doingSomethingStop10,    66667L, 70, 0, 0, 0, 0 },
+    { PIN_D18,      doingSomethingStart11,    doingSomethingStop11,    50000L, 75, 0, 0, 0, 0 },
+    { PIN_D19,      doingSomethingStart12,    doingSomethingStop12,    40000L, 80, 0, 0, 0, 0 },
+    { PIN_D21,      doingSomethingStart13,    doingSomethingStop13,    33333L, 85, 0, 0, 0, 0 },
+    { PIN_D22,      doingSomethingStart14,    doingSomethingStop14,    25000L, 90, 0, 0, 0, 0 },
+    { PIN_D23,      doingSomethingStart15,    doingSomethingStop15,    20000L, 95, 0, 0, 0, 0 }
   };
   
   #endif  // #if USING_PWM_FREQUENCY
 
-void doingSomething(int index)
+void doingSomethingStart(int index)
 {
-  unsigned long currentMillis  = millis();
+  unsigned long currentMicros  = micros();
 
-  curISR_PWM_Data[index].deltaMillis    = currentMillis - curISR_PWM_Data[index].previousMillis;
-  curISR_PWM_Data[index].previousMillis = currentMillis;
+  curISR_PWM_Data[index].deltaMicrosStart    = currentMicros - curISR_PWM_Data[index].previousMicrosStart;
+  curISR_PWM_Data[index].previousMicrosStart = currentMicros;
+}
+
+void doingSomethingStop(int index)
+{
+  unsigned long currentMicros  = micros();
+
+  //curISR_PWM_Data[index].deltaMicrosStop     = currentMicros - curISR_PWM_Data[index].previousMicrosStop;
+  // Count from start to stop PWM pulse
+  curISR_PWM_Data[index].deltaMicrosStop     = currentMicros - curISR_PWM_Data[index].previousMicrosStart;
+  curISR_PWM_Data[index].previousMicrosStop  = currentMicros;
 }
 
 #else   // #if USE_COMPLEX_STRUCT
 
-irqCallback irqCallbackFunc[NUMBER_ISR_PWMS] =
+irqCallback irqCallbackStartFunc[NUMBER_ISR_PWMS] =
 {
-  doingSomething0,  doingSomething1,  doingSomething2,  doingSomething3,
-  doingSomething4,  doingSomething5,  doingSomething6,  doingSomething7,
-  doingSomething8,  doingSomething9,  doingSomething10, doingSomething11,
-  doingSomething12, doingSomething13, doingSomething14, doingSomething15
+  doingSomethingStart0,  doingSomethingStart1,  doingSomethingStart2,  doingSomethingStart3,
+  doingSomethingStart4,  doingSomethingStart5,  doingSomethingStart6,  doingSomethingStart7,
+  doingSomethingStart8,  doingSomethingStart9,  doingSomethingStart10, doingSomethingStart11,
+  doingSomethingStart12, doingSomethingStart13, doingSomethingStart14, doingSomethingStart15
+};
+
+irqCallback irqCallbackStopFunc[NUMBER_ISR_PWMS] =
+{
+  doingSomethingStop0,  doingSomethingStop1,  doingSomethingStop2,  doingSomethingStop3,
+  doingSomethingStop4,  doingSomethingStop5,  doingSomethingStop6,  doingSomethingStop7,
+  doingSomethingStop8,  doingSomethingStop9,  doingSomethingStop10, doingSomethingStop11,
+  doingSomethingStop12, doingSomethingStop13, doingSomethingStop14, doingSomethingStop15
 };
 
 #endif    // #if USE_COMPLEX_STRUCT
@@ -575,49 +695,60 @@ SimpleTimer simpleTimer;
 // 2. Very long "do", "while", "for" loops without predetermined exit time.
 void simpleTimerDoingSomething2s()
 {
-  static unsigned long previousMillis = startMillis;
+  static unsigned long previousMicrosStart = startMicros;
 
-  unsigned long currMillis = millis();
+  unsigned long currMicros = micros();
 
   Serial.print(F("SimpleTimer (ms): ")); Serial.print(SIMPLE_TIMER_MS);
-  Serial.print(F(", ms : ")); Serial.print(currMillis);
-  Serial.print(F(", Dms : ")); Serial.println(currMillis - previousMillis);
+  Serial.print(F(", us : ")); Serial.print(currMicros);
+  Serial.print(F(", Dus : ")); Serial.println(currMicros - previousMicrosStart);
 
   for (uint16_t i = 0; i < NUMBER_ISR_PWMS; i++)
   {
 #if USE_COMPLEX_STRUCT
     Serial.print(F("PWM Channel : ")); Serial.print(i);
-    Serial.print(F(", programmed : ")); 
+    Serial.print(F(", programmed Period (us): "));
 
   #if USING_PWM_FREQUENCY
-    Serial.print(1000 / curISR_PWM_Data[i].PWM_Freq);
+    Serial.print(1000000 / curISR_PWM_Data[i].PWM_Freq);
   #else
     Serial.print(curISR_PWM_Data[i].PWM_Period);
   #endif
     
-    Serial.print(F(", actual : ")); Serial.println(curISR_PWM_Data[i].deltaMillis);
+    Serial.print(F(", actual : ")); Serial.print(curISR_PWM_Data[i].deltaMicrosStart);
+    
+    Serial.print(F(", programmed DutyCycle : ")); 
+
+    Serial.print(curISR_PWM_Data[i].PWM_DutyCycle);
+    
+    Serial.print(F(", actual : ")); Serial.println((float) curISR_PWM_Data[i].deltaMicrosStop * 100.0f / curISR_PWM_Data[i].deltaMicrosStart);
     
 #else
+
     Serial.print(F("PWM Channel : ")); Serial.print(i);
     
   #if USING_PWM_FREQUENCY
-    Serial.print(1000 / PWM_Freq[i]);
+    Serial.print(1000000 / PWM_Freq[i]);
   #else
-    Serial.print(curISR_PWM_Data[i].PWM_Period);
+    Serial.print(PWM_Period[i]);
   #endif
   
-    Serial.print(F(", programmed : ")); Serial.print(PWM_Period[i]);
-    Serial.print(F(", actual : ")); Serial.println(deltaMillis[i]);
+    Serial.print(F(", programmed Period (us): ")); Serial.print(PWM_Period[i]);
+    Serial.print(F(", actual : ")); Serial.print(deltaMicrosStart[i]);
+
+    Serial.print(F(", programmed DutyCycle : ")); 
+  
+    Serial.print(PWM_DutyCycle[i]);
+      
+    Serial.print(F(", actual : ")); Serial.println( (float) deltaMicrosStop[i] * 100.0f / deltaMicrosStart[i]);
 #endif
   }
 
-  previousMillis = currMillis;
+  previousMicrosStart = currMicros;
 }
 
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
-
   Serial.begin(115200);
   while (!Serial);
 
@@ -630,13 +761,13 @@ void setup()
   // Interval in microsecs
   if (ITimer.attachInterruptInterval(HW_TIMER_INTERVAL_US, TimerHandler))
   {
-    startMillis = millis();
-    Serial.print(F("Starting ITimer OK, millis() = ")); Serial.println(startMillis);
+    startMicros = micros();
+    Serial.print(F("Starting ITimer OK, micros() = ")); Serial.println(startMicros);
   }
   else
     Serial.println(F("Can't set ITimer. Select another freq. or timer"));
 
-  startMillis = millis();
+  startMicros = micros();
 
   // Just to demonstrate, don't use too many ISR Timers if not absolutely necessary
   // You can use up to 16 timer for each ISR_PWM
@@ -644,29 +775,31 @@ void setup()
   for (uint16_t i = 0; i < NUMBER_ISR_PWMS; i++)
   {
 #if USE_COMPLEX_STRUCT
-    curISR_PWM_Data[i].previousMillis = startMillis;
-    //ISR_PWM.setInterval(curISR_PWM_Data[i].PWM_Period, curISR_PWM_Data[i].irqCallbackFunc);
+    curISR_PWM_Data[i].previousMicrosStart = startMicros;
+    //ISR_PWM.setInterval(curISR_PWM_Data[i].PWM_Period, curISR_PWM_Data[i].irqCallbackStartFunc);
 
     //void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle
     // , timer_callback_p StartCallback = nullptr, timer_callback_p StopCallback = nullptr)
 
   #if USING_PWM_FREQUENCY
     // You can use this with PWM_Freq in Hz
-    ISR_PWM.setPWM(curISR_PWM_Data[i].PWM_Pin, curISR_PWM_Data[i].PWM_Freq, curISR_PWM_Data[i].PWM_DutyCycle, curISR_PWM_Data[i].irqCallbackFunc);
+    ISR_PWM.setPWM(curISR_PWM_Data[i].PWM_Pin, curISR_PWM_Data[i].PWM_Freq, curISR_PWM_Data[i].PWM_DutyCycle, 
+                   curISR_PWM_Data[i].irqCallbackStartFunc, curISR_PWM_Data[i].irqCallbackStopFunc);
   #else
     // Or You can use this with PWM_Period in us
-    ISR_PWM.setPWM_Period(curISR_PWM_Data[i].PWM_Pin, curISR_PWM_Data[i].PWM_Period, curISR_PWM_Data[i].PWM_DutyCycle, curISR_PWM_Data[i].irqCallbackFunc);
+    ISR_PWM.setPWM_Period(curISR_PWM_Data[i].PWM_Pin, curISR_PWM_Data[i].PWM_Period, curISR_PWM_Data[i].PWM_DutyCycle, 
+                          curISR_PWM_Data[i].irqCallbackStartFunc, curISR_PWM_Data[i].irqCallbackStopFunc);
   #endif
   
 #else
-    previousMillis[i] = millis();
+    previousMicrosStart[i] = micros();
     
   #if USING_PWM_FREQUENCY
     // You can use this with PWM_Freq in Hz
-    ISR_PWM.setPWM(PWM_Pin[i], PWM_Freq[i], PWM_DutyCycle[i], irqCallbackFunc[i]);
+    ISR_PWM.setPWM(PWM_Pin[i], PWM_Freq[i], PWM_DutyCycle[i], irqCallbackStartFunc[i], irqCallbackStopFunc[i]);
   #else
     // Or You can use this with PWM_Period in us
-    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i], irqCallbackFunc[i]);
+    ISR_PWM.setPWM_Period(PWM_Pin[i], PWM_Period[i], PWM_DutyCycle[i], irqCallbackStartFunc[i], irqCallbackStopFunc[i]);
   #endif 
    
 #endif
@@ -698,52 +831,69 @@ void loop()
 
 ### 1. ISR_16_PWMs_Array_Complex on ESP32_DEV
 
-The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods**
+The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
 
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.0.0
+ESP32_PWM v1.0.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
-Starting ITimer OK, millis() = 2054
-Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054323
-Channel : 1	Period : 500000		OnTime : 50000	Start_Time : 2054323
-Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054323
-Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054323
-Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054323
-Channel : 5	Period : 166666		OnTime : 74999	Start_Time : 2054323
-Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054323
-Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054323
-Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054323
-Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054323
-Channel : 10	Period : 66666		OnTime : 46666	Start_Time : 2054323
-Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054323
-Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054323
-Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054323
-Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054323
-Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054323
-SimpleTimer (ms): 2000, ms : 12150, Dms : 10096
-PWM Channel : 0, programmed : 1000, actual : 1000
-PWM Channel : 1, programmed : 500, actual : 500
-PWM Channel : 2, programmed : 333, actual : 333
-PWM Channel : 3, programmed : 250, actual : 250
-PWM Channel : 4, programmed : 200, actual : 200
-PWM Channel : 5, programmed : 166, actual : 167
-PWM Channel : 6, programmed : 142, actual : 143
-PWM Channel : 7, programmed : 125, actual : 125
-PWM Channel : 8, programmed : 111, actual : 111
-PWM Channel : 9, programmed : 100, actual : 100
-PWM Channel : 10, programmed : 66, actual : 66
-PWM Channel : 11, programmed : 50, actual : 50
-PWM Channel : 12, programmed : 40, actual : 40
-PWM Channel : 13, programmed : 33, actual : 33
-PWM Channel : 14, programmed : 25, actual : 25
-PWM Channel : 15, programmed : 20, actual : 20
+Starting ITimer OK, micros() = 2054206
+Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054324
+Channel : 1	Period : 500000		OnTime : 50000	Start_Time : 2054324
+Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054324
+Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054324
+Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054324
+Channel : 5	Period : 166667		OnTime : 75000	Start_Time : 2054324
+Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054324
+Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054324
+Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054324
+Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054324
+Channel : 10	Period : 66667		OnTime : 46666	Start_Time : 2054324
+Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054324
+Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054324
+Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054324
+Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054324
+Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054324
+SimpleTimer (ms): 2000, us : 12150587, Dus : 10096281
+PWM Channel : 0, programmed Period (us): 1000000, actual : 1000000, programmed DutyCycle : 5, actual : 5.00
+PWM Channel : 1, programmed Period (us): 500000, actual : 500001, programmed DutyCycle : 10, actual : 10.00
+PWM Channel : 2, programmed Period (us): 333333, actual : 333340, programmed DutyCycle : 20, actual : 20.00
+PWM Channel : 3, programmed Period (us): 250000, actual : 250002, programmed DutyCycle : 30, actual : 30.00
+PWM Channel : 4, programmed Period (us): 200000, actual : 200003, programmed DutyCycle : 40, actual : 40.00
+PWM Channel : 5, programmed Period (us): 166667, actual : 166679, programmed DutyCycle : 45, actual : 45.00
+PWM Channel : 6, programmed Period (us): 142857, actual : 142860, programmed DutyCycle : 50, actual : 49.99
+PWM Channel : 7, programmed Period (us): 125000, actual : 124997, programmed DutyCycle : 55, actual : 54.99
+PWM Channel : 8, programmed Period (us): 111111, actual : 111120, programmed DutyCycle : 60, actual : 59.99
+PWM Channel : 9, programmed Period (us): 100000, actual : 99995, programmed DutyCycle : 65, actual : 65.00
+PWM Channel : 10, programmed Period (us): 66667, actual : 66680, programmed DutyCycle : 70, actual : 69.98
+PWM Channel : 11, programmed Period (us): 50000, actual : 49999, programmed DutyCycle : 75, actual : 75.00
+PWM Channel : 12, programmed Period (us): 40000, actual : 40000, programmed DutyCycle : 80, actual : 80.00
+PWM Channel : 13, programmed Period (us): 33333, actual : 33340, programmed DutyCycle : 85, actual : 84.94
+PWM Channel : 14, programmed Period (us): 25000, actual : 25000, programmed DutyCycle : 90, actual : 90.00
+PWM Channel : 15, programmed Period (us): 20000, actual : 20000, programmed DutyCycle : 95, actual : 95.00
+SimpleTimer (ms): 2000, us : 22302463, Dus : 10151876
+PWM Channel : 0, programmed Period (us): 1000000, actual : 1000000, programmed DutyCycle : 5, actual : 5.00
+PWM Channel : 1, programmed Period (us): 500000, actual : 500001, programmed DutyCycle : 10, actual : 10.00
+PWM Channel : 2, programmed Period (us): 333333, actual : 333340, programmed DutyCycle : 20, actual : 20.00
+PWM Channel : 3, programmed Period (us): 250000, actual : 249998, programmed DutyCycle : 30, actual : 30.00
+PWM Channel : 4, programmed Period (us): 200000, actual : 199997, programmed DutyCycle : 40, actual : 40.00
+PWM Channel : 5, programmed Period (us): 166667, actual : 166681, programmed DutyCycle : 45, actual : 45.00
+PWM Channel : 6, programmed Period (us): 142857, actual : 142860, programmed DutyCycle : 50, actual : 49.99
+PWM Channel : 7, programmed Period (us): 125000, actual : 125001, programmed DutyCycle : 55, actual : 54.99
+PWM Channel : 8, programmed Period (us): 111111, actual : 111120, programmed DutyCycle : 60, actual : 59.99
+PWM Channel : 9, programmed Period (us): 100000, actual : 99999, programmed DutyCycle : 65, actual : 65.00
+PWM Channel : 10, programmed Period (us): 66667, actual : 66680, programmed DutyCycle : 70, actual : 69.98
+PWM Channel : 11, programmed Period (us): 50000, actual : 50001, programmed DutyCycle : 75, actual : 75.00
+PWM Channel : 12, programmed Period (us): 40000, actual : 39999, programmed DutyCycle : 80, actual : 80.00
+PWM Channel : 13, programmed Period (us): 33333, actual : 33341, programmed DutyCycle : 85, actual : 84.94
+PWM Channel : 14, programmed Period (us): 25000, actual : 25000, programmed DutyCycle : 90, actual : 90.00
+PWM Channel : 15, programmed Period (us): 20000, actual : 20000, programmed DutyCycle : 95, actual : 95.00
 ```
 
 ---
@@ -754,30 +904,30 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.0.0
+ESP32_PWM v1.0.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
-[PWM] _count = 0 - 1000
-[PWM] timer_set_alarm_value = 1000.00
-Starting ITimer OK, millis() = 2054
-Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054267
-Channel : 1	Period : 200000		OnTime : 20000	Start_Time : 2054267
-Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054267
-Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054267
-Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054267
-Channel : 5	Period : 166666		OnTime : 74999	Start_Time : 2054267
-Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054267
-Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054267
-Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054267
-Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054267
-Channel : 10	Period : 66666		OnTime : 46666	Start_Time : 2054267
-Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054267
-Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054267
-Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054267
-Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054267
-Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054267
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2054192
+Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054324
+Channel : 1	Period : 500000		OnTime : 50000	Start_Time : 2054324
+Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054324
+Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054324
+Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054324
+Channel : 5	Period : 166666		OnTime : 74999	Start_Time : 2054324
+Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054324
+Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054324
+Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054324
+Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054324
+Channel : 10	Period : 66666		OnTime : 46666	Start_Time : 2054324
+Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054324
+Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054324
+Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054324
+Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054324
+Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054324
 ```
 
 ---
@@ -789,30 +939,30 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.0.0
+ESP32_PWM v1.0.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
-Starting ITimer OK, millis() = 2054
-Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054360
-Channel : 1	Period : 500000		OnTime : 50000	Start_Time : 2054360
-Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054360
-Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054360
-Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054360
-Channel : 5	Period : 166666		OnTime : 74999	Start_Time : 2054360
-Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054360
-Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054360
-Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054360
-Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054360
-Channel : 10	Period : 66666		OnTime : 46666	Start_Time : 2054360
-Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054360
-Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054360
-Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054360
-Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054360
-Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054360
+Starting ITimer OK, micros() = 2054249
+Channel : 0	Period : 1000000		OnTime : 50000	Start_Time : 2054372
+Channel : 1	Period : 500000		OnTime : 50000	Start_Time : 2054372
+Channel : 2	Period : 333333		OnTime : 66666	Start_Time : 2054372
+Channel : 3	Period : 250000		OnTime : 75000	Start_Time : 2054372
+Channel : 4	Period : 200000		OnTime : 80000	Start_Time : 2054372
+Channel : 5	Period : 166666		OnTime : 74999	Start_Time : 2054372
+Channel : 6	Period : 142857		OnTime : 71428	Start_Time : 2054372
+Channel : 7	Period : 125000		OnTime : 68750	Start_Time : 2054372
+Channel : 8	Period : 111111		OnTime : 66666	Start_Time : 2054372
+Channel : 9	Period : 100000		OnTime : 65000	Start_Time : 2054372
+Channel : 10	Period : 66666		OnTime : 46666	Start_Time : 2054372
+Channel : 11	Period : 50000		OnTime : 37500	Start_Time : 2054372
+Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054372
+Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054372
+Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054372
+Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054372
 ```
 
 ---
@@ -822,7 +972,7 @@ Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054360
 
 Debug is enabled by default on Serial.
 
-You can also change the debugging level (_TIMERINTERRUPT_LOGLEVEL_) from 0 to 4
+You can also change the debugging level `_PWM_LOGLEVEL_` from 0 to 4
 
 ```cpp
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"

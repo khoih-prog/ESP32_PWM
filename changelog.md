@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.0.1](#releases-v101)
   * [Releases v1.0.0](#releases-v100)
 
 ---
@@ -19,8 +20,12 @@
 
 ## Changelog
 
+### Releases v1.0.1
+
+1. Adding PWM end-of-duty-cycle callback function.
+2. Fix bug.
+3. Add end-of-duty-cycle callback feature to examples
+
 ### Releases v1.0.0
 
 1. Initial coding for ESP32, ESP32_S2 boards using [ESP32 core v2.0.0+](https://github.com/espressif/arduino-esp32/releases/tag/2.0.0)
-
-

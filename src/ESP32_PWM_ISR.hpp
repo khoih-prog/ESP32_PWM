@@ -20,11 +20,12 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.0
+  Version: 1.0.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
 *****************************************************************************************************************************/
 
 #pragma once
@@ -63,6 +64,7 @@ void ESP32_PWM_ISR::init()
   {
     memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
     PWM[channelNum].prevTime = currentTime;
+    PWM[channelNum].pin      = INVALID_ESP32_PIN;
   }
   
   numChannels = 0;
@@ -94,10 +96,10 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
           digitalWrite(PWM[channelNum].pin, HIGH);
           PWM[channelNum].pinHigh = true;
           
-          // callback
-          if (PWM[channelNum].callback != nullptr)
+          // callbackStart
+          if (PWM[channelNum].callbackStart != nullptr)
           {
-            (*(timer_callback) PWM[channelNum].callback)();
+            (*(timer_callback) PWM[channelNum].callbackStart)();
           }
         }
       }
@@ -107,6 +109,12 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
         {
           digitalWrite(PWM[channelNum].pin, LOW);
           PWM[channelNum].pinHigh = false;
+          
+          // callback when PWM pulse stops (LOW)
+          if (PWM[channelNum].callbackStop != nullptr)
+          {
+            (*(timer_callback) PWM[channelNum].callbackStop)();
+          }
         }
       }
       //else 
@@ -134,7 +142,7 @@ int ESP32_PWM_ISR::findFirstFreeSlot()
     return -1;
   }
 
-  // return the first slot with no callback (i.e. free)
+  // return the first slot with no callbackStart (i.e. free)
   for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
   {
     if ( (PWM[channelNum].period == 0) && !PWM[channelNum].enabled )
@@ -149,14 +157,14 @@ int ESP32_PWM_ISR::findFirstFreeSlot()
 
 ///////////////////////////////////////////////////
 
-int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutycycle, void* cbFunc) 
+int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutycycle, void* cbStartFunc, void* cbStopFunc)
 {
   int channelNum;
   
-  // Invalid input, such as pin = 0, period = 0, etc
-  if ( (pin == 0) || (period == 0) || (dutycycle > 100) )
+  // Invalid input, such as period = 0, etc
+  if ( (period == 0) || (dutycycle > 100) )
   {
-    PWM_LOGERROR("Error: Invalid pin, period or dutycycle");
+    PWM_LOGERROR("Error: Invalid period or dutycycle");
     return -1;
   }
 
@@ -172,15 +180,16 @@ int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutyc
     return -1;
   }
 
-  PWM[channelNum].pin          = pin;
-  PWM[channelNum].period       = period;
-  PWM[channelNum].onTime       = ( period * dutycycle ) / 100;
+  PWM[channelNum].pin           = pin;
+  PWM[channelNum].period        = period;
+  PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
   
   pinMode(pin, OUTPUT);
   digitalWrite(pin, HIGH);
-  PWM[channelNum].pinHigh      = true;
+  PWM[channelNum].pinHigh       = true;
   
-  PWM[channelNum].callback     = cbFunc;
+  PWM[channelNum].callbackStart = cbStartFunc;
+  PWM[channelNum].callbackStop  = cbStopFunc;
   
   PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
   PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
@@ -207,13 +216,15 @@ void ESP32_PWM_ISR::deleteChannel(unsigned channelNum)
     return;
   }
 
-  // don't decrease the number of timers if the specified slot is already empty
-  if (PWM[channelNum].callback != NULL) 
+  // don't decrease the number of timers if the specified slot is already empty (zero period, invalid)
+  if ( (PWM[channelNum].pin != INVALID_ESP32_PIN) && (PWM[channelNum].period != 0) )
   {
     // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
     portENTER_CRITICAL(&PWM_Mux);
 
     memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
+    
+    PWM[channelNum].pin = INVALID_ESP32_PIN;
     
     // update number of timers
     numChannels--;
@@ -283,14 +294,14 @@ void ESP32_PWM_ISR::disable(unsigned channelNum)
 
 void ESP32_PWM_ISR::enableAll() 
 {
-  // Enable all timers with a callback assigned (used)
+  // Enable all timers with a callbackStart assigned (used)
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
 
   for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
   {
-    if (PWM[channelNum].callback != NULL) 
+    if (PWM[channelNum].period != 0)
     {
       PWM[channelNum].enabled = true;
     }
@@ -304,14 +315,14 @@ void ESP32_PWM_ISR::enableAll()
 
 void ESP32_PWM_ISR::disableAll() 
 {
-  // Disable all timers with a callback assigned (used)
+  // Disable all timers with a callbackStart assigned (used)
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
 
   for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
   {
-    if (PWM[channelNum].callback != NULL) 
+    if (PWM[channelNum].period != 0)
     {
       PWM[channelNum].enabled = false;
     }
