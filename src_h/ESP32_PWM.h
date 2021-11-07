@@ -21,12 +21,13 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.1
+  Version: 1.1.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
   1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
+  1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
 *****************************************************************************************************************************/
 
 #pragma once
@@ -53,7 +54,7 @@
 #endif
 
 #ifndef ESP32_PWM_VERSION
-  #define ESP32_PWM_VERSION       "ESP32_PWM v1.0.1"
+  #define ESP32_PWM_VERSION       "ESP32_PWM v1.1.0"
 #endif
 
 #ifndef TIMER_INTERRUPT_DEBUG

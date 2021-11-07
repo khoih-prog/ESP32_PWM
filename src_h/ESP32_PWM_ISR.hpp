@@ -20,12 +20,13 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.0.1
+  Version: 1.1.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
   1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
+  1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
 *****************************************************************************************************************************/
 
 #pragma once
@@ -179,6 +180,9 @@ int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutyc
   {
     return -1;
   }
+  
+  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
+  portENTER_CRITICAL(&PWM_Mux);
 
   PWM[channelNum].pin           = pin;
   PWM[channelNum].period        = period;
@@ -188,8 +192,13 @@ int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutyc
   digitalWrite(pin, HIGH);
   PWM[channelNum].pinHigh       = true;
   
+  PWM[channelNum].prevTime      = timeNow();
+  
   PWM[channelNum].callbackStart = cbStartFunc;
   PWM[channelNum].callbackStop  = cbStopFunc;
+  
+  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
+  portEXIT_CRITICAL(&PWM_Mux);
   
   PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
   PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
@@ -200,6 +209,50 @@ int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutyc
   
   return channelNum;
 }
+
+///////////////////////////////////////////////////
+
+bool ESP32_PWM_ISR::modifyPWMChannel_Period(unsigned channelNum, uint32_t pin, uint32_t period, uint32_t dutycycle)
+{
+  // Invalid input, such as period = 0, etc
+  if ( (period == 0) || (dutycycle > 100) )
+  {
+    PWM_LOGERROR("Error: Invalid period or dutycycle");
+    return false;
+  }
+
+  if (channelNum > MAX_NUMBER_CHANNELS) 
+  {
+    PWM_LOGERROR("Error: channelNum > MAX_NUMBER_CHANNELS");
+    return false;
+  }
+  
+  if (PWM[channelNum].pin != pin) 
+  {
+    PWM_LOGERROR("Error: channelNum and pin mismatched");
+    return false;
+  }
+
+  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
+  portENTER_CRITICAL(&PWM_Mux);
+    
+  PWM[channelNum].period        = period;
+  PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
+  
+  digitalWrite(pin, HIGH);
+  PWM[channelNum].pinHigh       = true;
+  
+  PWM[channelNum].prevTime      = timeNow();
+  
+  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
+  portEXIT_CRITICAL(&PWM_Mux);
+   
+  PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
+  PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
+  
+  return true;
+}
+
 
 ///////////////////////////////////////////////////
 

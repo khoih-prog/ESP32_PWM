@@ -12,10 +12,12 @@
 ## Table of Contents
 
 * [Why do we need this ESP32_PWM library](#why-do-we-need-this-ESP32_PWM-library)
+  * [Important notes](#Important-notes)
   * [Features](#features)
   * [Why using ISR-based PWM-channels is better](#Why-using-ISR-based-PWM-channels-is-better)
   * [Currently supported Boards](#currently-supported-boards)
   * [Important Notes about ISR](#important-notes-about-isr)
+* [Changelog](changelog.md)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
   * [Use Arduino Library Manager](#use-arduino-library-manager)
@@ -29,14 +31,20 @@
 * [More useful Information](#more-useful-information)
 * [How to use](#how-to-use)
 * [Examples](#examples)
-  * [  1. ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array)
-  * [  2. ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex)
-  * [  3. ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple)
+  * [ 1. ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array)
+  * [ 2. ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex)
+  * [ 3. ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple)
+  * [ 4. ISR_Changing_PWM](examples/ISR_Changing_PWM)
+  * [ 5. ISR_Modify_PWM](examples/ISR_Modify_PWM)
 * [Example ISR_16_PWMs_Array_Complex](#Example-ISR_16_PWMs_Array_Complex)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
   * [1. ISR_16_PWMs_Array_Complex on ESP32_DEV](#1-ISR_16_PWMs_Array_Complex-on-ESP32_DEV)
   * [2. ISR_16_PWMs_Array on ESP32_DEV](#2-ISR_16_PWMs_Array-on-ESP32_DEV)
   * [3. ISR_16_PWMs_Array_Simple on ESP32_DEV](#3-ISR_16_PWMs_Array_Simple-on-ESP32_DEV)
+  * [4. ISR_Modify_PWM on ESP32_DEV](#4-ISR_Modify_PWM-on-ESP32_DEV)
+  * [5. ISR_Changing_PWM on ESP32_DEV](#5-ISR_Changing_PWM-on-ESP32_DEV)
+  * [6. ISR_Modify_PWM on ESP32S2_DEV](#6-ISR_Modify_PWM-on-ESP32S2_DEV)
+  * [7. ISR_Changing_PWM on ESP32S2_DEV](#7-ISR_Changing_PWM-on-ESP32S2_DEV)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Issues](#issues)
@@ -52,9 +60,18 @@
 
 ### Why do we need this [ESP32_PWM library](https://github.com/khoih-prog/ESP32_PWM)
 
+#### Important notes
+
+**Don't use ESP32 Core v2.0.1 RC1 yet** as it introduces new breaking features compared to v2.0.0 and will crash these examples
+
+  * [ 1. ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array)
+  * [ 2. ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex)
+  * [ 3. ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple)
+
+
 ## Features
 
-This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2-based board to create and output PWM to pins. Becayse this library doesn't use the powerful hardware-controlled PWM with limitations, the maximum PWM frequency is currently limited at **500Hz**, which is suitable for many real-life applications.
+This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2-based board to create and output PWM to pins. Becayse this library doesn't use the powerful hardware-controlled PWM with limitations, the maximum PWM frequency is currently limited at **500Hz**, which is suitable for many real-life applications. Now you can also modify PWM settings on-the-fly.
 
 ---
 
@@ -114,7 +131,7 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ## Prerequisites
 
 1. [`Arduino IDE 1.8.16+` for Arduino](https://www.arduino.cc/en/Main/Software)
-2. [`ESP32 Core 2.0.0+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
+2. [`ESP32 Core 2.0.0+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/). **Don't use ESP32 core v2.0.1-RC1**. Check [Important notes](#Important-notes)
 ---
 ---
 
@@ -247,7 +264,9 @@ Before using any Timer, you have to make sure the Timer has not been used by any
 
  1. [ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array)
  2. [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex)
- 3. [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple) 
+ 3. [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple)
+ 4. [ISR_Changing_PWM](examples/ISR_Changing_PWM)
+ 5. [ISR_Modify_PWM](examples/ISR_Modify_PWM)
 
 ---
 ---
@@ -836,7 +855,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.0.1
+ESP32_PWM v1.1.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -904,7 +923,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.0.1
+ESP32_PWM v1.1.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -939,7 +958,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.0.1
+ESP32_PWM v1.1.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -963,6 +982,109 @@ Channel : 12	Period : 40000		OnTime : 32000	Start_Time : 2054372
 Channel : 13	Period : 33333		OnTime : 28333	Start_Time : 2054372
 Channel : 14	Period : 25000		OnTime : 22500	Start_Time : 2054372
 Channel : 15	Period : 20000		OnTime : 19000	Start_Time : 2054372
+```
+
+---
+
+### 4. ISR_Modify_PWM on ESP32_DEV
+
+The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
+
+```
+Starting ISR_Modify_PWM on ESP32_DEV
+ESP32_PWM v1.1.0
+CPU Frequency = 240 MHz
+[PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
+[PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
+[PWM] _timerIndex = 1 , _timerGroup = 0
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2058106
+Using PWM Freq = 1.00, PWM DutyCycle = 10
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 2058634
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 12070032
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 22071014
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 32072016
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 42073014
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 52074016
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 62075014
+```
+
+---
+
+### 5. ISR_Changing_PWM on ESP32_DEV
+
+The following is the sample terminal output when running example [ISR_Changing_PWM](examples/ISR_Changing_PWM) on **ESP32_DEV** to demonstrate how to modify PWM settings on-the-fly by deleting the PWM channel and reinit the PWM channel
+
+```
+Starting ISR_Changing_PWM on ESP32_DEV
+ESP32_PWM v1.1.0
+CPU Frequency = 240 MHz
+[PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
+[PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
+[PWM] _timerIndex = 1 , _timerGroup = 0
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2058129
+Using PWM Freq = 1.00, PWM DutyCycle = 50
+Channel : 0	Period : 1000000		OnTime : 500000	Start_Time : 2058667
+Using PWM Freq = 2.00, PWM DutyCycle = 90
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 12068785
+Using PWM Freq = 1.00, PWM DutyCycle = 50
+Channel : 0	Period : 1000000		OnTime : 500000	Start_Time : 22068823
+Using PWM Freq = 2.00, PWM DutyCycle = 90
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 32068768
+```
+
+---
+
+### 6. ISR_Modify_PWM on ESP32S2_DEV
+
+The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32S2_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
+
+```
+Starting ISR_Modify_PWM on ESP32S2_DEV
+ESP32_PWM v1.1.0
+CPU Frequency = 240 MHz
+[PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
+[PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
+[PWM] _timerIndex = 1 , _timerGroup = 0
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2570882
+Using PWM Freq = 1.00, PWM DutyCycle = 10
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 2581465
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 12590688
+Channel : 0	Period : 1000000		OnTime : 100000	Start_Time : 22595680
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 32600680
+```
+
+---
+
+### 7. ISR_Changing_PWM on ESP32S2_DEV
+
+The following is the sample terminal output when running example [ISR_Changing_PWM](examples/ISR_Changing_PWM) on **ESP32S2_DEV** to demonstrate how to modify PWM settings on-the-fly by deleting the PWM channel and reinit the PWM channel
+
+```
+Starting ISR_Changing_PWM on ESP32S2_DEV
+ESP32_PWM v1.1.0
+CPU Frequency = 240 MHz
+[PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
+[PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
+[PWM] _timerIndex = 1 , _timerGroup = 0
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2571406
+Using PWM Freq = 1.00, PWM DutyCycle = 50
+Channel : 0	Period : 1000000		OnTime : 500000	Start_Time : 2576406
+Using PWM Freq = 2.00, PWM DutyCycle = 90
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 12586347
+Using PWM Freq = 1.00, PWM DutyCycle = 50
+Channel : 0	Period : 1000000		OnTime : 500000	Start_Time : 22591327
+Using PWM Freq = 2.00, PWM DutyCycle = 90
+Channel : 0	Period : 500000		OnTime : 450000	Start_Time : 32591326
+Using PWM Freq = 1.00, PWM DutyCycle = 50
+Channel : 0	Period : 1000000		OnTime : 500000	Start_Time : 42596324
 ```
 
 ---
@@ -1011,6 +1133,7 @@ Submit issues to: [ESP32_PWM issues](https://github.com/khoih-prog/ESP32_PWM/iss
 1. Basic hardware PWM-channels for ESP32 and ESP32-S2 for [ESP32 core v2.0.0+](https://github.com/espressif/arduino-esp32/releases/tag/2.0.0)
 2. Longer time interval
 3. Add complex examples.
+4. Add functions to modify PWM settings on-the-fly
 
 ---
 ---

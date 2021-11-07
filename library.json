@@ -1,8 +1,8 @@
 {
   "name": "ESP32_PWM",
-  "version": "1.0.1",
-  "keywords": "timing, device, control, pwm, timer, interrupt, hardware, isr, isr-based, hardware-timer, isr-timer, isr-based-timer, mission-critical, accuracy, precise, non-blocking, esp32, esp32-s2, esp32-c3, synchronized-PWM",
-  "description": "This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2 or ESP32_C3-based board to create and output PWM to pins. It now supports 16 ISR-based synchronized PWM channels, while consuming only 1 Hardware Timer. PWM interval can be very long (uint32_t millisecs). The most important feature is they're ISR-based PWM channels. Therefore, their executions are not blocked by bad-behaving functions or tasks. This important feature is absolutely necessary for mission-critical tasks. These hardware PWM channels, using interrupt, still work even if other functions are blocking. Moreover, they are much more precise (certainly depending on clock frequency accuracy) than other software timers using millis() or micros(). That's necessary if you need to measure some data requiring better accuracy.",
+  "version": "1.1.0",
+  "keywords": "timing, device, control, pwm, timer, interrupt, hardware, isr, isr-based, hardware-timer, isr-timer, isr-based-timer, mission-critical, accuracy, precise, non-blocking, esp32, esp32-s2, esp32-c3, synchronized-PWM, on-the-fly",
+  "description": "This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2 or ESP32_C3-based board to create and output PWM to pins. It now supports 16 ISR-based synchronized PWM channels, while consuming only 1 Hardware Timer. PWM interval can be very long (uint32_t millisecs). The most important feature is they're ISR-based PWM channels. Therefore, their executions are not blocked by bad-behaving functions or tasks. This important feature is absolutely necessary for mission-critical tasks. These hardware PWM channels, using interrupt, still work even if other functions are blocking. Moreover, they are much more precise (certainly depending on clock frequency accuracy) than other software timers using millis() or micros(). That's necessary if you need to measure some data requiring better accuracy. Now you can change the PWM settings on-the-fly",
   "authors":
   {
     "name":  "Khoi Hoang",

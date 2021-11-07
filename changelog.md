@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.1.0](#releases-v110)
   * [Releases v1.0.1](#releases-v101)
   * [Releases v1.0.0](#releases-v100)
 
@@ -19,6 +20,12 @@
 ---
 
 ## Changelog
+
+### Releases v1.1.0
+
+1. Add functions to modify PWM settings on-the-fly
+2. Fix bug
+3. Add example to demo how to modify PWM settings on-the-fly
 
 ### Releases v1.0.1
 

@@ -33,6 +33,8 @@ init  KEYWORD2
 run KEYWORD2
 setPWM  KEYWORD2
 setPWM_Period  KEYWORD2
+modifyPWMChannel  KEYWORD2
+modifyPWMChannel_Period KEYWORD2
 deleteChannel KEYWORD2
 restartChannel  KEYWORD2
 isEnabled KEYWORD2
