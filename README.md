@@ -60,7 +60,7 @@
 
 ### Why do we need this [ESP32_PWM library](https://github.com/khoih-prog/ESP32_PWM)
 
-#### Important notes
+### Important notes
 
 **Don't use ESP32 Core v2.0.1 RC1 yet** as it introduces new breaking features compared to v2.0.0 and will crash these examples
 
@@ -69,7 +69,7 @@
   * [ 3. ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple)
 
 
-## Features
+### Features
 
 This library enables you to use Interrupt from Hardware Timers on an ESP32, ESP32_S2-based board to create and output PWM to pins. Becayse this library doesn't use the powerful hardware-controlled PWM with limitations, the maximum PWM frequency is currently limited at **500Hz**, which is suitable for many real-life applications. Now you can also modify PWM settings on-the-fly.
 
