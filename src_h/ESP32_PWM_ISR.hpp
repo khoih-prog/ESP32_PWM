@@ -20,13 +20,14 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.1.0
+  Version: 1.1.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0   K Hoang      20/09/2021 Initial coding for ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
   1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
   1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
+  1.1.1   K Hoang      09/11/2021 Fix examples to not use GPIO1/TX0 for core v2.0.1+
 *****************************************************************************************************************************/
 
 #pragma once
@@ -39,7 +40,7 @@
 /////////////////////////////////////////////////// 
 
 
-uint64_t timeNow()
+uint64_t IRAM_ATTR timeNow()
 {
 #if USING_MICROS_RESOLUTION  
   return ( (uint64_t) micros() );

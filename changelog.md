@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.1.1](#releases-v111)
   * [Releases v1.1.0](#releases-v110)
   * [Releases v1.0.1](#releases-v101)
   * [Releases v1.0.0](#releases-v100)
@@ -20,6 +21,10 @@
 ---
 
 ## Changelog
+
+### Releases v1.1.1
+
+1. Fix examples to not use GPIO1/TX0 for core v2.0.1+
 
 ### Releases v1.1.0
 

@@ -100,9 +100,10 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 //////////////////////////////////////////////////////
 
 // You can assign pins here. Be carefull to select good pin to use or crash, e.g pin 6-11
+// Can't use PIN_D1 for core v2.0.1+
 uint32_t PWM_Pin[NUMBER_ISR_PWMS] =
 {
-  PIN_D1,  LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
+  PIN_D24, LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
   PIN_D15, PIN_D16,      PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
 };
 
@@ -154,6 +155,7 @@ void setup()
   // Just to demonstrate, don't use too many ISR Timers if not absolutely necessary
   // You can use up to 16 timer for each ISR_PWM
   for (uint16_t i = 0; i < NUMBER_ISR_PWMS; i++)
+  //for (uint16_t i = 0; i < 1; i++)
   {
     //void setPWM(uint32_t pin, uint32_t frequency, uint32_t dutycycle
     // , timer_callback_p StartCallback = nullptr, timer_callback_p StopCallback = nullptr)
