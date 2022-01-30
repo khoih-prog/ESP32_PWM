@@ -49,3 +49,9 @@ getNumAvailablePWMChannels KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
+
+ESP32_PWM_VERSION  LITERAL1
+ESP32_PWM_VERSION_MAJOR  LITERAL1
+ESP32_PWM_VERSION_MINOR  LITERAL1
+ESP32_PWM_VERSION_PATCH  LITERAL1
+ESP32_PWM_VERSION_INT  LITERAL1

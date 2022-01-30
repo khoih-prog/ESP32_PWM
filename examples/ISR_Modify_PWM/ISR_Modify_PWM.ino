@@ -22,9 +22,7 @@
 *****************************************************************************************************************************/
 
 #if !defined( ESP32 )
-#error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
-#elif ( ARDUINO_ESP32C3_DEV )
-#error This code is not ready to run on ESP32-C3 platform! Please check your Tools->Board setting.
+  #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
 #endif
 
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
@@ -34,10 +32,11 @@
 
 #define USING_MICROS_RESOLUTION       true    //false 
 
+// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"
 
 #ifndef LED_BUILTIN
-#define LED_BUILTIN       2
+  #define LED_BUILTIN       2
 #endif
 
 #define HW_TIMER_INTERVAL_US      20L
@@ -63,6 +62,12 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 //////////////////////////////////////////////////////
 
+uint32_t PWMx_Pin[] =
+{
+  PIN_D24, LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
+  PIN_D15, PIN_D16,      PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
+};
+
 // You can assign pins here. Be carefull to select good pin to use or crash
 uint32_t PWM_Pin    = LED_BUILTIN;
 
@@ -72,14 +77,14 @@ double PWM_Freq1   = 1.0f;
 double PWM_Freq2   = 2.0f;
 
 // You can assign any interval for any timer here, in microseconds
-uint32_t PWM_Period1 = 1000000 / PWM_Freq1;
+double PWM_Period1 = 1000000.0 / PWM_Freq1;
 // You can assign any interval for any timer here, in microseconds
-uint32_t PWM_Period2 = 1000000 / PWM_Freq2;
+double PWM_Period2 = 1000000.0 / PWM_Freq2;
 
 // You can assign any duty_cycle for any PWM here, from 0-100
-uint32_t PWM_DutyCycle1  = 10;
+double PWM_DutyCycle1  = 10.0;
 // You can assign any duty_cycle for any PWM here, from 0-100
-uint32_t PWM_DutyCycle2  = 90;
+double PWM_DutyCycle2  = 90.0;
 
 // Channel number used to identify associated channel
 int channelNum;

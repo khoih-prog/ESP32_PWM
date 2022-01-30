@@ -23,8 +23,6 @@
 
 #if !defined( ESP32 )
   #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
-#elif ( ARDUINO_ESP32C3_DEV )
-  #error This code is not ready to run on ESP32-C3 platform! Please check your Tools->Board setting.
 #endif
 
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
@@ -34,6 +32,7 @@
 
 #define USING_MICROS_RESOLUTION       true    //false 
 
+// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"
 
 #ifndef LED_BUILTIN
@@ -72,14 +71,14 @@ double PWM_Freq1   = 1.0f;
 double PWM_Freq2   = 2.0f;
 
 // You can assign any interval for any timer here, in microseconds
-uint32_t PWM_Period1 = 1000000 / PWM_Freq1;
+double PWM_Period1 = 1000000.0 / PWM_Freq1;
 // You can assign any interval for any timer here, in microseconds
-uint32_t PWM_Period2 = 1000000 / PWM_Freq2;
+double PWM_Period2 = 1000000.0 / PWM_Freq2;
 
 // You can assign any duty_cycle for any PWM here, from 0-100
-uint32_t PWM_DutyCycle1  = 50;
+double PWM_DutyCycle1  = 50.0;
 // You can assign any duty_cycle for any PWM here, from 0-100
-uint32_t PWM_DutyCycle2  = 90;
+double PWM_DutyCycle2  = 90.0;
 
 // Channel number used to identify associated channel
 int channelNum;

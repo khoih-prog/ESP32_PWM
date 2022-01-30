@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.2.0](#releases-v120)
   * [Releases v1.1.1](#releases-v111)
   * [Releases v1.1.0](#releases-v110)
   * [Releases v1.0.1](#releases-v101)
@@ -21,6 +22,14 @@
 ---
 
 ## Changelog
+
+### Releases v1.2.0
+
+1. Fix `multiple-definitions` linker error. Drop `src_cpp` and `src_h` directories
+2. Add support to `ESP32_C3`
+3. Add example [multiFileProject](examples/multiFileProject) to demo for multiple-file project
+4. Improve accuracy by using `double`, instead of `uint32_t` for `dutycycle`, `period`
+5. Update examples accordingly
 
 ### Releases v1.1.1
 

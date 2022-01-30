@@ -23,8 +23,6 @@
 
 #if !defined( ESP32 )
   #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
-#elif ( ARDUINO_ESP32C3_DEV )
-  #error This code is not ready to run on ESP32-C3 platform! Please check your Tools->Board setting.
 #endif
 
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
@@ -34,6 +32,7 @@
 
 #define USING_MICROS_RESOLUTION       true    //false 
 
+// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"
 
 #ifndef LED_BUILTIN
@@ -68,7 +67,11 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 //////////////////////////////////////////////////////
 
-#define NUMBER_ISR_PWMS         16
+#if ( ARDUINO_ESP32C3_DEV )
+  #define NUMBER_ISR_PWMS         4
+#else
+  #define NUMBER_ISR_PWMS         16
+#endif
 
 #define PIN_D0            0         // Pin D0 mapped to pin GPIO0/BOOT/ADC11/TOUCH1 of ESP32
 #define PIN_D1            1         // Pin D1 mapped to pin GPIO1/TX0 of ESP32
@@ -101,34 +104,41 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 // You can assign pins here. Be carefull to select good pin to use or crash, e.g pin 6-11
 // Can't use PIN_D1 for core v2.0.1+
-uint32_t PWM_Pin[NUMBER_ISR_PWMS] =
+
+#if ( ARDUINO_ESP32C3_DEV )
+uint32_t PWM_Pin[] =
+// Bad pins to use: PIN_D12-PIN_D24
+{
+  LED_BUILTIN, PIN_D3,  PIN_D4,  PIN_D5
+};
+#else
+uint32_t PWM_Pin[] =
 {
   PIN_D24, LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
   PIN_D15, PIN_D16,      PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
 };
+#endif
 
 // You can assign any interval for any timer here, in microseconds
-uint32_t PWM_Period[NUMBER_ISR_PWMS] =
+double PWM_Period[] =
 {
-  1000000L,   500000L,   333333L,   250000L,   200000L,   166667L,   142857L,   125000L,
-  111111L,   100000L,    66667L,    50000L,    40000L,   33333L,     25000L,    20000L
+  1000000.0,     500000.0,   333333.333,   250000.0,   200000.0,   166666.666,   142857.143,   125000.0,
+   111111.111,   100000.0,    66666.666,    50000.0,    40000.0,    33333.333,    25000.0,      20000.0
 };
 
-
 // You can assign any interval for any timer here, in Hz
-double PWM_Freq[NUMBER_ISR_PWMS] =
+double PWM_Freq[] =
 {
   1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,  7.0f,  8.0f,
   9.0f, 10.0f, 15.0f, 20.0f, 25.0f, 30.0f, 40.0f, 50.0f
 };
 
 // You can assign any interval for any timer here, in milliseconds
-uint32_t PWM_DutyCycle[NUMBER_ISR_PWMS] =
+double PWM_DutyCycle[] =
 {
-  5, 10, 20, 30, 40, 45, 50, 55,
-  60, 65, 70, 75, 80, 85, 90, 95
+   5.00, 10.00, 20.00, 30.00, 40.00, 45.00, 50.00, 55.00,
+  60.00, 65.00, 70.00, 75.00, 80.00, 85.00, 90.00, 95.00
 };
-
 
 ////////////////////////////////////////////////
 

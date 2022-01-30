@@ -20,7 +20,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.1.1
+  Version: 1.2.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -28,6 +28,7 @@
   1.0.1   K Hoang      21/09/2021 Fix bug. Ading PWM end-of-duty-cycle callback function. Improve examples
   1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
   1.1.1   K Hoang      09/11/2021 Fix examples to not use GPIO1/TX0 for core v2.0.1+
+  1.2.0   K Hoang      29/01/2022 Fix multiple-definitions linker error. Improve accuracy. Fix bug
 *****************************************************************************************************************************/
 
 #pragma once
@@ -35,376 +36,217 @@
 #ifndef PWM_ISR_GENERIC_HPP
 #define PWM_ISR_GENERIC_HPP
 
-#include <string.h>
-
-/////////////////////////////////////////////////// 
-
-
-uint64_t IRAM_ATTR timeNow()
-{
-#if USING_MICROS_RESOLUTION  
-  return ( (uint64_t) micros() );
-#else
-  return ( (uint64_t) millis() );
-#endif    
-}
-  
-/////////////////////////////////////////////////// 
-
-ESP32_PWM_ISR::ESP32_PWM_ISR()
-  : numChannels (-1)
-{
-}
-
-///////////////////////////////////////////////////
-
-void ESP32_PWM_ISR::init() 
-{
-  uint64_t currentTime = timeNow();
+#if !defined( ESP32 )
+  #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
    
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
-  {
-    memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
-    PWM[channelNum].prevTime = currentTime;
-    PWM[channelNum].pin      = INVALID_ESP32_PIN;
-  }
+#endif
+
+#if defined(ARDUINO)
+  #if ARDUINO >= 100
+    #include <Arduino.h>
+  #else
+    #include <WProgram.h>
+  #endif
+#endif
+
+#ifndef ESP32_PWM_VERSION
+  #define ESP32_PWM_VERSION           "ESP32_PWM v1.2.0"
   
-  numChannels = 0;
+  #define ESP32_PWM_VERSION_MAJOR     1
+  #define ESP32_PWM_VERSION_MINOR     2
+  #define ESP32_PWM_VERSION_PATCH     0
 
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
-  PWM_Mux = portMUX_INITIALIZER_UNLOCKED;
-}
+  #define ESP32_PWM_VERSION_INT       1002000
+#endif
 
-///////////////////////////////////////////////////
+#ifndef _PWM_LOGLEVEL_
+  #define _PWM_LOGLEVEL_       1
+#endif
 
-void IRAM_ATTR ESP32_PWM_ISR::run() 
-{ 
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
-  portENTER_CRITICAL_ISR(&PWM_Mux);
+#include "PWM_Generic_Debug.h"
+
+#define CONFIG_ESP32_APPTRACE_ENABLE
+
+#if 0
+  #ifndef configMINIMAL_STACK_SIZE
+    #define configMINIMAL_STACK_SIZE    2048
+  #else
+    #undef configMINIMAL_STACK_SIZE
+    #define configMINIMAL_STACK_SIZE    2048
+  #endif
+#endif
+
+#include <stddef.h>
+
+#include <inttypes.h>
+
+#define ESP32_PWM_ISR ESP32_PWM
+
+typedef void (*timer_callback)();
+typedef void (*timer_callback_p)(void *);
+
+#if !defined(USING_MICROS_RESOLUTION)
+  #warning Not USING_MICROS_RESOLUTION, using millis resolution
+  #define USING_MICROS_RESOLUTION       false
+#endif
+
+class ESP32_PWM_ISR 
+{
+
+  public:
+    // maximum number of PWM channels
+#define MAX_NUMBER_CHANNELS        16
+
+    // constructor
+    ESP32_PWM_ISR();
+
+    void init();
+
+    // this function must be called inside loop()
+    void IRAM_ATTR run();
     
-  uint64_t currentTime = timeNow();
-
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
-  {
-    // If enabled => check
-    // start period / dutyCycle => digitalWrite HIGH
-    // end dutyCycle =>  digitalWrite LOW
-    if (PWM[channelNum].enabled) 
+    //////////////////////////////////////////////////////////////////
+    // PWM
+    // Return the channelNum if OK, -1 if error
+    int setPWM(const uint32_t& pin, const double& frequency, const double& dutycycle, timer_callback StartCallback = nullptr, 
+                timer_callback StopCallback = nullptr)
     {
-      if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) <= PWM[channelNum].onTime ) 
-      {              
-        if (!PWM[channelNum].pinHigh)
-        {
-          digitalWrite(PWM[channelNum].pin, HIGH);
-          PWM[channelNum].pinHigh = true;
-          
-          // callbackStart
-          if (PWM[channelNum].callbackStart != nullptr)
-          {
-            (*(timer_callback) PWM[channelNum].callbackStart)();
-          }
-        }
-      }
-      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) < PWM[channelNum].period ) 
+      double period = 0.0;
+      
+      if ( ( frequency > 0.0 ) && ( frequency <= 500.0 ) )
       {
-        if (PWM[channelNum].pinHigh)
-        {
-          digitalWrite(PWM[channelNum].pin, LOW);
-          PWM[channelNum].pinHigh = false;
-          
-          // callback when PWM pulse stops (LOW)
-          if (PWM[channelNum].callbackStop != nullptr)
-          {
-            (*(timer_callback) PWM[channelNum].callbackStop)();
-          }
-        }
+#if USING_MICROS_RESOLUTION
+      // period in us
+      period = 1000000.0f / frequency;
+#else    
+      // period in ms
+      period = 1000.0f / frequency;
+#endif
       }
-      //else 
-      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) >= PWM[channelNum].period )   
+      else
+      {       
+        PWM_LOGERROR("Error: Invalid frequency, max is 500Hz");
+        
+        return -1;
+      }
+      
+      return setupPWMChannel(pin, period, dutycycle, (void *) StartCallback, (void *) StopCallback);  
+    }
+
+    // period in us
+    // Return the channelNum if OK, -1 if error
+    int setPWM_Period(const uint32_t& pin, const double& period, const double& dutycycle, timer_callback StartCallback = nullptr,
+                       timer_callback StopCallback = nullptr)  
+    {     
+      return setupPWMChannel(pin, period, dutycycle, (void *) StartCallback, (void *) StopCallback);      
+    } 
+    
+    //////////////////////////////////////////////////////////////////
+    
+    // low level function to modify a PWM channel
+    // returns the true on success or false on failure
+    bool modifyPWMChannel(const unsigned& channelNum, const uint32_t& pin, const double& frequency, const double& dutycycle)
+    {
+      double period = 0.0;
+      
+      if ( ( frequency > 0.0 ) && ( frequency <= 500.0 ) )
       {
-        PWM[channelNum].prevTime = currentTime;
-      }      
+#if USING_MICROS_RESOLUTION
+      // period in us
+      period = 1000000.0f / frequency;
+#else    
+      // period in ms
+      period = 1000.0f / frequency;
+#endif
+      }
+      else
+      {       
+        PWM_LOGERROR("Error: Invalid frequency, max is 500Hz");
+        return false;
+      }
+      
+      return modifyPWMChannel_Period(channelNum, pin, period, dutycycle);
     }
-  }
-
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
-  portEXIT_CRITICAL_ISR(&PWM_Mux);
-}
-
-
-///////////////////////////////////////////////////
-
-// find the first available slot
-// return -1 if none found
-int ESP32_PWM_ISR::findFirstFreeSlot() 
-{
-  // all slots are used
-  if (numChannels >= MAX_NUMBER_CHANNELS) 
-  {
-    return -1;
-  }
-
-  // return the first slot with no callbackStart (i.e. free)
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
-  {
-    if ( (PWM[channelNum].period == 0) && !PWM[channelNum].enabled )
-    {
-      return channelNum;
-    }
-  }
-
-  // no free slots found
-  return -1;
-}
-
-///////////////////////////////////////////////////
-
-int ESP32_PWM_ISR::setupPWMChannel(uint32_t pin, uint32_t period, uint32_t dutycycle, void* cbStartFunc, void* cbStopFunc)
-{
-  int channelNum;
-  
-  // Invalid input, such as period = 0, etc
-  if ( (period == 0) || (dutycycle > 100) )
-  {
-    PWM_LOGERROR("Error: Invalid period or dutycycle");
-    return -1;
-  }
-
-  if (numChannels < 0) 
-  {
-    init();
-  }
- 
-  channelNum = findFirstFreeSlot();
-  
-  if (channelNum < 0) 
-  {
-    return -1;
-  }
-  
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portENTER_CRITICAL(&PWM_Mux);
-
-  PWM[channelNum].pin           = pin;
-  PWM[channelNum].period        = period;
-  PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
-  
-  pinMode(pin, OUTPUT);
-  digitalWrite(pin, HIGH);
-  PWM[channelNum].pinHigh       = true;
-  
-  PWM[channelNum].prevTime      = timeNow();
-  
-  PWM[channelNum].callbackStart = cbStartFunc;
-  PWM[channelNum].callbackStop  = cbStopFunc;
-  
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portEXIT_CRITICAL(&PWM_Mux);
-  
-  PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
-  PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
- 
-  numChannels++;
-  
-  PWM[channelNum].enabled      = true;
-  
-  return channelNum;
-}
-
-///////////////////////////////////////////////////
-
-bool ESP32_PWM_ISR::modifyPWMChannel_Period(unsigned channelNum, uint32_t pin, uint32_t period, uint32_t dutycycle)
-{
-  // Invalid input, such as period = 0, etc
-  if ( (period == 0) || (dutycycle > 100) )
-  {
-    PWM_LOGERROR("Error: Invalid period or dutycycle");
-    return false;
-  }
-
-  if (channelNum > MAX_NUMBER_CHANNELS) 
-  {
-    PWM_LOGERROR("Error: channelNum > MAX_NUMBER_CHANNELS");
-    return false;
-  }
-  
-  if (PWM[channelNum].pin != pin) 
-  {
-    PWM_LOGERROR("Error: channelNum and pin mismatched");
-    return false;
-  }
-
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portENTER_CRITICAL(&PWM_Mux);
     
-  PWM[channelNum].period        = period;
-  PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
-  
-  digitalWrite(pin, HIGH);
-  PWM[channelNum].pinHigh       = true;
-  
-  PWM[channelNum].prevTime      = timeNow();
-  
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portEXIT_CRITICAL(&PWM_Mux);
-   
-  PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
-  PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
-  
-  return true;
-}
+    //period in us
+    bool modifyPWMChannel_Period(const unsigned& channelNum, const uint32_t& pin, const double& period, const double& dutycycle);
 
+    // destroy the specified PWM channel
+    void deleteChannel(const unsigned& channelNum);
 
-///////////////////////////////////////////////////
+    // restart the specified PWM channel
+    void restartChannel(const unsigned& channelNum);
 
-void ESP32_PWM_ISR::deleteChannel(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return;
-  }
+    // returns true if the specified PWM channel is enabled
+    bool isEnabled(const unsigned& channelNum);
 
-  // nothing to delete if no timers are in use
-  if (numChannels == 0) 
-  {
-    return;
-  }
+    // enables the specified PWM channel
+    void enable(const unsigned& channelNum);
 
-  // don't decrease the number of timers if the specified slot is already empty (zero period, invalid)
-  if ( (PWM[channelNum].pin != INVALID_ESP32_PIN) && (PWM[channelNum].period != 0) )
-  {
-    // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-    portENTER_CRITICAL(&PWM_Mux);
+    // disables the specified PWM channel
+    void disable(const unsigned& channelNum);
 
-    memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
-    
-    PWM[channelNum].pin = INVALID_ESP32_PIN;
-    
-    // update number of timers
-    numChannels--;
+    // enables all PWM channels
+    void enableAll();
 
-    // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-    portEXIT_CRITICAL(&PWM_Mux);
+    // disables all PWM channels
+    void disableAll();
 
-  }
-}
+    // enables the specified PWM channel if it's currently disabled, and vice-versa
+    void toggle(const unsigned& channelNum);
 
-///////////////////////////////////////////////////
+    // returns the number of used PWM channels
+    unsigned getnumChannels();
 
-// function contributed by code@rowansimms.com
-void ESP32_PWM_ISR::restartChannel(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return;
-  }
-
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portENTER_CRITICAL(&PWM_Mux);
-
-  PWM[channelNum].prevTime = timeNow();
-
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portEXIT_CRITICAL(&PWM_Mux);
-}
-
-///////////////////////////////////////////////////
-
-bool ESP32_PWM_ISR::isEnabled(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return false;
-  }
-
-  return PWM[channelNum].enabled;
-}
-
-///////////////////////////////////////////////////
-
-void ESP32_PWM_ISR::enable(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return;
-  }
-
-  PWM[channelNum].enabled = true;
-}
-
-///////////////////////////////////////////////////
-
-void ESP32_PWM_ISR::disable(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return;
-  }
-
-  PWM[channelNum].enabled = false;
-}
-
-///////////////////////////////////////////////////
-
-void ESP32_PWM_ISR::enableAll() 
-{
-  // Enable all timers with a callbackStart assigned (used)
-
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portENTER_CRITICAL(&PWM_Mux);
-
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
-  {
-    if (PWM[channelNum].period != 0)
+    // returns the number of available PWM channels
+    unsigned getNumAvailablePWMChannels() 
     {
-      PWM[channelNum].enabled = true;
-    }
-  }
+      return MAX_NUMBER_CHANNELS - numChannels;
+    };
 
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portEXIT_CRITICAL(&PWM_Mux);
-}
+  private:
 
-///////////////////////////////////////////////////
+    // low level function to initialize and enable a new PWM channel
+    // returns the PWM channel number (channelNum) on success or
+    // -1 on failure (f == NULL) or no free PWM channels 
+    int setupPWMChannel(const uint32_t& pin, const double& period, const double& dutycycle, void* cbStartFunc = nullptr, void* cbStopFunc = nullptr);
 
-void ESP32_PWM_ISR::disableAll() 
-{
-  // Disable all timers with a callbackStart assigned (used)
+    // find the first available slot
+    int findFirstFreeSlot();
 
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portENTER_CRITICAL(&PWM_Mux);
-
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
-  {
-    if (PWM[channelNum].period != 0)
+    typedef struct 
     {
-      PWM[channelNum].enabled = false;
-    }
-  }
+      ///////////////////////////////////
+      
+      
+      ///////////////////////////////////
+      
+      uint64_t      prevTime;           // value returned by the micros() or millis() function in the previous run() call
+      double        period;             // period value, in us / ms
+      uint32_t      onTime;             // onTime value, ( period * dutyCycle / 100 ) us  / ms
+      
+      void*         callbackStart;      // pointer to the callback function when PWM pulse starts (HIGH)
+      void*         callbackStop;       // pointer to the callback function when PWM pulse stops (LOW)
+      
+      ////////////////////////////////////////////////////////////
+      
+      uint32_t      pin;                // PWM pin
+      bool          pinHigh;            // true if PWM pin is HIGH
+      ////////////////////////////////////////////////////////////
+      
+      bool          enabled;            // true if enabled
+    } PWM_t;
 
-  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
-  portEXIT_CRITICAL(&PWM_Mux);
+    volatile PWM_t PWM[MAX_NUMBER_CHANNELS];
 
-}
+    // actual number of PWM channels in use (-1 means uninitialized)
+    volatile int numChannels;
 
-///////////////////////////////////////////////////
+    // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
+    portMUX_TYPE PWM_Mux = portMUX_INITIALIZER_UNLOCKED;
+};
 
-void ESP32_PWM_ISR::toggle(unsigned channelNum) 
-{
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
-  {
-    return;
-  }
-
-  PWM[channelNum].enabled = !PWM[channelNum].enabled;
-}
-
-///////////////////////////////////////////////////
-
-unsigned ESP32_PWM_ISR::getnumChannels() 
-{
-  return numChannels;
-}
 
 #endif    // PWM_ISR_GENERIC_HPP
+
 
