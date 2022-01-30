@@ -20,7 +20,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.2.0
+  Version: 1.2.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -29,6 +29,7 @@
   1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
   1.1.1   K Hoang      09/11/2021 Fix examples to not use GPIO1/TX0 for core v2.0.1+
   1.2.0   K Hoang      29/01/2022 Fix multiple-definitions linker error. Improve accuracy. Fix bug
+  1.2.1   K Hoang      30/01/2022 DutyCycle to be updated at the end current PWM period
 *****************************************************************************************************************************/
 
 #pragma once
@@ -124,7 +125,18 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
       else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) >= PWM[channelNum].period )   
       {
         PWM[channelNum].prevTime = currentTime;
-      }      
+        
+#if CHANGING_PWM_END_OF_CYCLE
+        // Only update whenever having newPeriod
+        if (PWM[channelNum].newPeriod != 0)
+        {
+          PWM[channelNum].period    = PWM[channelNum].newPeriod;
+          PWM[channelNum].newPeriod = 0;
+          
+          PWM[channelNum].onTime  = ( PWM[channelNum].period * PWM[channelNum].newDutyCycle ) / 100;
+        }
+#endif
+      }        
     }
   }
 
@@ -188,6 +200,10 @@ int ESP32_PWM_ISR::setupPWMChannel(const uint32_t& pin, const double& period, co
 
   PWM[channelNum].pin           = pin;
   PWM[channelNum].period        = period;
+  
+  // Must be 0 for new PWM channel
+  PWM[channelNum].newPeriod     = 0;
+  
   PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
   
   pinMode(pin, OUTPUT);
@@ -201,9 +217,11 @@ int ESP32_PWM_ISR::setupPWMChannel(const uint32_t& pin, const double& period, co
   
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portEXIT_CRITICAL(&PWM_Mux);
-  
-  PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
-  PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
+   
+  PWM_LOGDEBUG0("Channel : ");      PWM_LOGDEBUG0(channelNum); 
+  PWM_LOGDEBUG0("\t    Period : "); PWM_LOGDEBUG0(PWM[channelNum].period);
+  PWM_LOGDEBUG0("\t\tOnTime : ");   PWM_LOGDEBUG0(PWM[channelNum].onTime); 
+  PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
  
   numChannels++;
   
@@ -237,6 +255,21 @@ bool ESP32_PWM_ISR::modifyPWMChannel_Period(const unsigned& channelNum, const ui
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
+
+#if CHANGING_PWM_END_OF_CYCLE
+
+  PWM[channelNum].newPeriod     = period;
+  PWM[channelNum].newDutyCycle  = dutycycle;
+  
+  // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
+  portEXIT_CRITICAL(&PWM_Mux);
+  
+  PWM_LOGDEBUG0("Channel : ");      PWM_LOGDEBUG0(channelNum); 
+  PWM_LOGDEBUG0("\tNew Period : "); PWM_LOGDEBUG0(PWM[channelNum].newPeriod);
+  PWM_LOGDEBUG0("\t\tOnTime : ");   PWM_LOGDEBUG0(( period * dutycycle ) / 100); 
+  PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
+  
+#else
     
   PWM[channelNum].period        = period;
   PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
@@ -249,8 +282,12 @@ bool ESP32_PWM_ISR::modifyPWMChannel_Period(const unsigned& channelNum, const ui
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portEXIT_CRITICAL(&PWM_Mux);
    
-  PWM_LOGDEBUG0("Channel : "); PWM_LOGDEBUG0(channelNum); PWM_LOGDEBUG0("\tPeriod : "); PWM_LOGDEBUG0(PWM[channelNum].period);
-  PWM_LOGDEBUG0("\t\tOnTime : "); PWM_LOGDEBUG0(PWM[channelNum].onTime); PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
+  PWM_LOGDEBUG0("Channel : ");      PWM_LOGDEBUG0(channelNum); 
+  PWM_LOGDEBUG0("\t    Period : "); PWM_LOGDEBUG0(PWM[channelNum].period);
+  PWM_LOGDEBUG0("\t\tOnTime : ");   PWM_LOGDEBUG0(PWM[channelNum].onTime); 
+  PWM_LOGDEBUG0("\tStart_Time : "); PWM_LOGDEBUGLN0(PWM[channelNum].prevTime);
+  
+#endif
   
   return true;
 }

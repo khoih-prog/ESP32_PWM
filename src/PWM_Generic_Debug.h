@@ -20,7 +20,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.2.0
+  Version: 1.2.1
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -29,6 +29,7 @@
   1.1.0   K Hoang      06/11/2021 Add functions to modify PWM settings on-the-fly
   1.1.1   K Hoang      09/11/2021 Fix examples to not use GPIO1/TX0 for core v2.0.1+
   1.2.0   K Hoang      29/01/2022 Fix multiple-definitions linker error. Improve accuracy. Fix bug
+  1.2.1   K Hoang      30/01/2022 DutyCycle to be updated at the end current PWM period
  *****************************************************************************************************************************/
 
 #pragma once

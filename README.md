@@ -288,7 +288,10 @@ Before using any Timer, you have to make sure the Timer has not been used by any
 // Don't define _PWM_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
 #define _PWM_LOGLEVEL_      4
 
-#define USING_MICROS_RESOLUTION       true    //false 
+#define USING_MICROS_RESOLUTION       true    //false
+
+// Default is true, uncomment to false
+//#define CHANGING_PWM_END_OF_CYCLE     false 
 
 // To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"
@@ -718,9 +721,8 @@ void loop()
 The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
 
 
-```
-Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.2.0
+```Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -788,7 +790,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -821,9 +823,8 @@ Channel : 15	Period : 20000.00		OnTime : 19000	Start_Time : 2149811
 
 The following is the sample terminal output when running example [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple) to demonstrate how to use multiple Hardware PWM channels.
 
-```
-Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.2.0
+```Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -857,22 +858,20 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
-Starting ITimer OK, micros() = 2059736
+Starting ITimer OK, micros() = 2059726
 Using PWM Freq = 1.00, PWM DutyCycle = 10.00
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 2060395
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12072043
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 22073035
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 32074035
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 42075035
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 52076035
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 62077035
+Channel : 0	    Period : 1000000.00		OnTime : 100000	Start_Time : 2060379
+Channel : 0	New Period : 500000.00		OnTime : 450000.00	Start_Time : 12060409
+Channel : 0	New Period : 1000000.00		OnTime : 100000.00	Start_Time : 22060409
+Channel : 0	New Period : 500000.00		OnTime : 450000.00	Start_Time : 31560409
+Channel : 0	New Period : 1000000.00		OnTime : 100000.00	Start_Time : 42060409
 ```
 
 ---
@@ -883,7 +882,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -891,14 +890,24 @@ CPU Frequency = 240 MHz
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
 Starting ITimer OK, micros() = 2059714
-Using PWM Freq = 1.00, PWM DutyCycle = 50
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 2060263
-Using PWM Freq = 2.00, PWM DutyCycle = 90
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12071245
-Using PWM Freq = 1.00, PWM DutyCycle = 50
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 22071285
-Using PWM Freq = 2.00, PWM DutyCycle = 90
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 32071229
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 2060368
+Using PWM Freq = 2.00, PWM DutyCycle = 90.00
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 12071352
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 22071379
+Using PWM Freq = 2.00, PWM DutyCycle = 90.00
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 32071338
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 42071356
+Using PWM Freq = 2.00, PWM DutyCycle = 90.00
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 52071338
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 62071356
+Using PWM Freq = 2.00, PWM DutyCycle = 90.00
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 72071338
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 82071356
 ```
 
 ---
@@ -909,20 +918,20 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32S2_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
-Starting ITimer OK, micros() = 2561855
+Starting ITimer OK, micros() = 2559974
 Using PWM Freq = 1.00, PWM DutyCycle = 10.00
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 2572494
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12581543
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 22586522
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 32591522
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 42596522
+Channel : 0	    Period : 1000000.00		OnTime : 100000	Start_Time : 2570620
+Channel : 0	New Period : 500000.00		OnTime : 450000.00	Start_Time : 12570649
+Channel : 0	New Period : 1000000.00		OnTime : 100000.00	Start_Time : 22570649
+Channel : 0	New Period : 500000.00		OnTime : 450000.00	Start_Time : 32070689
+Channel : 0	New Period : 1000000.00		OnTime : 100000.00	Start_Time : 42570749
 ```
 
 ---
@@ -933,18 +942,20 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32S2_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
 [PWM] _timerIndex = 1 , _timerGroup = 0
 [PWM] _count = 0 - 20
 [PWM] timer_set_alarm_value = 20.00
-Starting ITimer OK, micros() = 2563731
+Starting ITimer OK, micros() = 2561799
 Using PWM Freq = 1.00, PWM DutyCycle = 50.00
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 2568739
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 2566886
 Using PWM Freq = 2.00, PWM DutyCycle = 90.00
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12578693
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 12576879
+Using PWM Freq = 1.00, PWM DutyCycle = 50.00
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 22581846
 ```
 
 ---
@@ -955,7 +966,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32C3_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -964,11 +975,11 @@ CPU Frequency = 160 MHz
 [PWM] timer_set_alarm_value = 20.00
 Starting ITimer OK, micros() = 2100385
 Using PWM Freq = 1.00, PWM DutyCycle = 10.00
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 2113126
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12118037
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 22119020
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 32120019
-Channel : 0	Period : 1000000.00		OnTime : 100000	Start_Time : 42121019
+Channel : 0	    Period : 1000000.00		OnTime : 100000	Start_Time : 2113126
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 12118037
+Channel : 0	    Period : 1000000.00		OnTime : 100000	Start_Time : 22119020
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 32120019
+Channel : 0	    Period : 1000000.00		OnTime : 100000	Start_Time : 42121019
 ```
 
 ---
@@ -979,7 +990,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32C3_DEV
-ESP32_PWM v1.2.0
+ESP32_PWM v1.2.1
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -988,15 +999,15 @@ CPU Frequency = 160 MHz
 [PWM] timer_set_alarm_value = 20.00
 Starting ITimer OK, micros() = 2100339
 Using PWM Freq = 1.00, PWM DutyCycle = 50.00
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 2105212
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 2105212
 Using PWM Freq = 2.00, PWM DutyCycle = 90.00
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 12117109
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 12117109
 Using PWM Freq = 1.00, PWM DutyCycle = 50.00
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 22122103
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 22122103
 Using PWM Freq = 2.00, PWM DutyCycle = 90.00
-Channel : 0	Period : 500000.00		OnTime : 450000	Start_Time : 32122107
+Channel : 0	    Period : 500000.00		OnTime : 450000	Start_Time : 32122107
 Using PWM Freq = 1.00, PWM DutyCycle = 50.00
-Channel : 0	Period : 1000000.00		OnTime : 500000	Start_Time : 42127102
+Channel : 0	    Period : 1000000.00		OnTime : 500000	Start_Time : 42127102
 ```
 
 
@@ -1051,7 +1062,7 @@ Submit issues to: [ESP32_PWM issues](https://github.com/khoih-prog/ESP32_PWM/iss
  6. Fix `multiple-definitions` linker error. Drop `src_cpp` and `src_h` directories
  7. Add example [multiFileProject](examples/multiFileProject) to demo for multiple-file project
  8. Improve accuracy by using `double`, instead of `uint32_t` for `dutycycle`, `period`. Check [Change Duty Cycle #1](https://github.com/khoih-prog/ESP8266_PWM/issues/1#issuecomment-1024969658)
-
+ 9. DutyCycle to be optionally updated at the end current PWM period instead of immediately. Check [DutyCycle to be updated at the end current PWM period #2](https://github.com/khoih-prog/ESP8266_PWM/issues/2)
 
 ---
 ---

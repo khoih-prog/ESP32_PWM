@@ -14,5 +14,8 @@
 
 #define USING_MICROS_RESOLUTION       true    //false
 
+// Default is true, uncomment to false
+//#define CHANGING_PWM_END_OF_CYCLE     false 
+
 // Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "ESP32_PWM.hpp"

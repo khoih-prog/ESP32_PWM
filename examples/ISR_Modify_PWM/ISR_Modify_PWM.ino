@@ -30,7 +30,10 @@
 // Don't define _PWM_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
 #define _PWM_LOGLEVEL_                4
 
-#define USING_MICROS_RESOLUTION       true    //false 
+#define USING_MICROS_RESOLUTION       true    //false
+
+// Default is true, uncomment to false
+//#define CHANGING_PWM_END_OF_CYCLE     false
 
 // To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"
@@ -62,11 +65,6 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 //////////////////////////////////////////////////////
 
-uint32_t PWMx_Pin[] =
-{
-  PIN_D24, LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
-  PIN_D15, PIN_D16,      PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
-};
 
 // You can assign pins here. Be carefull to select good pin to use or crash
 uint32_t PWM_Pin    = LED_BUILTIN;
