@@ -132,21 +132,21 @@ uint32_t PWM_Pin[] =
 #endif
 
 // You can assign any interval for any timer here, in microseconds
-double PWM_Period[] =
+uint32_t PWM_Period[] =
 {
-  1000000.0,     500000.0,   333333.333,   250000.0,   200000.0,   166666.666,   142857.143,   125000.0,
-   111111.111,   100000.0,    66666.666,    50000.0,    40000.0,    33333.333,    25000.0,      20000.0
+  1000000,     500000,   333333,   250000,   200000,   166667,   142857,   125000,
+   111111,     100000,    66667,    50000,    40000,    33333,    25000,    20000
 };
 
 // You can assign any interval for any timer here, in Hz
-double PWM_Freq[] =
+float PWM_Freq[] =
 {
   1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,  7.0f,  8.0f,
   9.0f, 10.0f, 15.0f, 20.0f, 25.0f, 30.0f, 40.0f, 50.0f
 };
 
 // You can assign any interval for any timer here, in milliseconds
-double PWM_DutyCycle[] =
+float PWM_DutyCycle[] =
 {
    5.00, 10.00, 20.00, 30.00, 40.00, 45.00, 50.00, 55.00,
   60.00, 65.00, 70.00, 75.00, 80.00, 85.00, 90.00, 95.00
