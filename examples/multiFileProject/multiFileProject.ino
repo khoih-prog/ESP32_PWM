@@ -14,8 +14,8 @@
   #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting. 
 #endif
 
-#define ESP32_PWM_VERSION_MIN_TARGET      "ESP32_PWM v1.2.0"
-#define ESP32_PWM_VERSION_MIN             1002000
+#define ESP32_PWM_VERSION_MIN_TARGET      "ESP32_PWM v1.2.2"
+#define ESP32_PWM_VERSION_MIN             1002002
 
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
 // _PWM_LOGLEVEL_ from 0 to 4
