@@ -1,18 +1,19 @@
 /****************************************************************************************************************************
   ISR_16_PWMs_Array.ino
-  For ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  For ESP32, ESP32_S2, ESP32_S3, ESP32_C3 boards with ESP32 core v2.0.0+
   Written by Khoi Hoang
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP32_PWM
   Licensed under MIT license
 
-  The ESP32, ESP32_S2, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
-  1) each group of ESP32, ESP32_S2 has two general purpose hardware timers, TIMER_0 and TIMER_1
+  The ESP32, ESP32_S2, ESP32_S3, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
+  1) each group of ESP32, ESP32_S2, ESP32_S3 has two general purpose hardware timers, TIMER_0 and TIMER_1
   2) each group of ESP32_C3 has ony one general purpose hardware timer, TIMER_0
   
-  All the timers are based on 64 bits counters and 16 bit prescalers. The timer counters can be configured to count up or down 
-  and support automatic reload and software reload. They can also generate alarms when they reach a specific value, defined by 
-  the software. The value of the counter can be read by the software program.
+  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers. 
+  The timer counters can be configured to count up or down and support automatic reload and software reload. 
+  They can also generate alarms when they reach a specific value, defined by the software. 
+  The value of the counter can be read by the software program.
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
   unsigned long miliseconds), you just consume only one ESP32-S2 timer and avoid conflicting with other cores' tasks.
@@ -72,6 +73,8 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 #if ( ARDUINO_ESP32C3_DEV )
   #define NUMBER_ISR_PWMS         4
+#elif ( ARDUINO_ESP32S3_DEV )
+  #define NUMBER_ISR_PWMS         16
 #else
   #define NUMBER_ISR_PWMS         16
 #endif
@@ -82,6 +85,12 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D3            3         // Pin D3 mapped to pin GPIO3/RX0 of ESP32
 #define PIN_D4            4         // Pin D4 mapped to pin GPIO4/ADC10/TOUCH0 of ESP32
 #define PIN_D5            5         // Pin D5 mapped to pin GPIO5/SPISS/VSPI_SS of ESP32
+#define PIN_D6            6         // Pin D6 mapped to pin GPIO6 of ESP32
+#define PIN_D7            7         // Pin D7 mapped to pin GPIO7 of ESP32
+#define PIN_D8            8         // Pin D8 mapped to pin GPIO8 of ESP32
+#define PIN_D9            9         // Pin D9 mapped to pin GPIO9 of ESP32
+#define PIN_D10           10        // Pin D10 mapped to pin GPIO10 of ESP32
+#define PIN_D11           11        // Pin D11 mapped to pin GPIO11 of ESP32
 #define PIN_D12           12        // Pin D12 mapped to pin GPIO12/HSPI_MISO/ADC15/TOUCH5/TDI of ESP32
 #define PIN_D13           13        // Pin D13 mapped to pin GPIO13/HSPI_MOSI/ADC14/TOUCH4/TCK of ESP32
 #define PIN_D14           14        // Pin D14 mapped to pin GPIO14/HSPI_SCK/ADC16/TOUCH6/TMS of ESP32
@@ -97,7 +106,7 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D24           24        // Pin D24 mapped to pin GPIO24 of ESP32
 #define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
 #define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
-#define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32   
+#define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32 
 
 //////////////////////////////////////////////////////
 
@@ -113,6 +122,13 @@ uint32_t PWM_Pin[] =
 // Bad pins to use: PIN_D12-PIN_D24
 {
   LED_BUILTIN, PIN_D3,  PIN_D4,  PIN_D5
+};
+#elif ( ARDUINO_ESP32S3_DEV )
+uint32_t PWM_Pin[] =
+// Bad pins to use: PIN_D24
+{
+  PIN_D1, PIN_D2,   PIN_D3,  PIN_D4,  PIN_D5,  PIN_D6,  PIN_D7,  PIN_D8,
+  PIN_D9, PIN_D10,  PIN_D11, PIN_D12, PIN_D13, PIN_D14, PIN_D15, PIN_D16,
 };
 #else
 uint32_t PWM_Pin[] =
@@ -271,4 +287,5 @@ void setup()
 
 void loop()
 {
+  delay(1);
 }

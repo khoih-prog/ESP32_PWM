@@ -1,19 +1,20 @@
 
 /****************************************************************************************************************************
   ESP32_PWM.hpp
-  For ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  For ESP32, ESP32_S2, ESP32_S3, ESP32_C3 boards with ESP32 core v2.0.0+
   Written by Khoi Hoang
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP32_PWM
   Licensed under MIT license
 
-  The ESP32, ESP32_S2, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
-  1) each group of ESP32, ESP32_S2 has two general purpose hardware timers, TIMER_0 and TIMER_1
+  The ESP32, ESP32_S2, ESP32_S3, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
+  1) each group of ESP32, ESP32_S2, ESP32_S3 has two general purpose hardware timers, TIMER_0 and TIMER_1
   2) each group of ESP32_C3 has ony one general purpose hardware timer, TIMER_0
   
-  All the timers are based on 64 bits counters and 16 bit prescalers. The timer counters can be configured to count up or down 
-  and support automatic reload and software reload. They can also generate alarms when they reach a specific value, defined by 
-  the software. The value of the counter can be read by the software program.
+  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers. 
+  The timer counters can be configured to count up or down and support automatic reload and software reload. 
+  They can also generate alarms when they reach a specific value, defined by the software. 
+  The value of the counter can be read by the software program.
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
   unsigned long miliseconds), you just consume only one ESP32-S2 timer and avoid conflicting with other cores' tasks.
@@ -21,7 +22,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.2.2
+  Version: 1.3.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -32,6 +33,7 @@
   1.2.0   K Hoang      29/01/2022 Fix multiple-definitions linker error. Improve accuracy. Fix bug
   1.2.1   K Hoang      30/01/2022 DutyCycle to be updated at the end current PWM period
   1.2.2   K Hoang      01/02/2022 Use float for DutyCycle and Freq, uint32_t for period. Optimize code
+  1.3.0   K Hoang      12/02/2022 Add support to new ESP32-S3
 *****************************************************************************************************************************/
 
 #pragma once
@@ -47,8 +49,11 @@
         ARDUINO_METRO_ESP32S2 || ARDUINO_MAGTAG29_ESP32S2 || ARDUINO_FUNHOUSE_ESP32S2 || \
         ARDUINO_ADAFRUIT_FEATHER_ESP32S2_NOPSRAM )
   #define USING_ESP32_S2_PWM         true
+#elif ( defined(ARDUINO_ESP32S3_DEV) || defined(ARDUINO_ESP32_S3_BOX) || defined(ARDUINO_TINYS3) || \
+        defined(ARDUINO_PROS3) || defined(ARDUINO_FEATHERS3) )
+  #define USING_ESP32_S3_PWM         true  
 #elif ( ARDUINO_ESP32C3_DEV )
-  #define USING_ESP32_C3_PWM         true  
+  #define USING_ESP32_C3_PWM         true 
 #elif defined(ESP32)
   #define USING_ESP32_PWM            true  
 #else
@@ -64,13 +69,13 @@
 #endif
 
 #ifndef ESP32_PWM_VERSION
-  #define ESP32_PWM_VERSION           "ESP32_PWM v1.2.2"
+  #define ESP32_PWM_VERSION           "ESP32_PWM v1.3.0"
   
   #define ESP32_PWM_VERSION_MAJOR     1
-  #define ESP32_PWM_VERSION_MINOR     2
-  #define ESP32_PWM_VERSION_PATCH     2
+  #define ESP32_PWM_VERSION_MINOR     3
+  #define ESP32_PWM_VERSION_PATCH     0
 
-  #define ESP32_PWM_VERSION_INT       1002002
+  #define ESP32_PWM_VERSION_INT       1003000
 #endif
 
 #ifndef TIMER_INTERRUPT_DEBUG
@@ -274,12 +279,16 @@ class ESP32TimerInterrupt
       {      
         // select timer frequency is 1MHz for better accuracy. We don't use 16-bit prescaler for now.
         // Will use later if very low frequency is needed.
-        _frequency  = TIMER_BASE_CLK / TIMER_DIVIDER;   //1000000;
+        _frequency  = TIMER_BASE_CLK / TIMER_DIVIDER;
         _timerCount = (uint64_t) _frequency / frequency;
         // count up
 
 #if USING_ESP32_S2_PWM
         PWM_LOGWARN3(F("ESP32_S2_TimerInterrupt: _timerNo ="), _timerNo, F(", _fre ="), TIMER_BASE_CLK / TIMER_DIVIDER);
+#elif USING_ESP32_S3_PWM
+        // ESP32-S3 is embedded with four 54-bit general-purpose timers, which are based on 16-bit prescalers
+        // and 54-bit auto-reload-capable up/down-timers
+        PWM_LOGWARN3(F("ESP32_S3_TimerInterrupt: _timerNo ="), _timerNo, F(", _fre ="), TIMER_BASE_CLK / TIMER_DIVIDER);   
 #else
         PWM_LOGWARN3(F("ESP32_TimerInterrupt: _timerNo ="), _timerNo, F(", _fre ="), TIMER_BASE_CLK / TIMER_DIVIDER);
 #endif

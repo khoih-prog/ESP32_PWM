@@ -1,19 +1,20 @@
 
 /****************************************************************************************************************************
   ESP32_PWM.h
-  For ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  For ESP32, ESP32_S2, ESP32_S3, ESP32_C3 boards with ESP32 core v2.0.0+
   Written by Khoi Hoang
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP32_PWM
   Licensed under MIT license
 
-  The ESP32, ESP32_S2, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
-  1) each group of ESP32, ESP32_S2 has two general purpose hardware timers, TIMER_0 and TIMER_1
+  The ESP32, ESP32_S2, ESP32_S3, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
+  1) each group of ESP32, ESP32_S2, ESP32_S3 has two general purpose hardware timers, TIMER_0 and TIMER_1
   2) each group of ESP32_C3 has ony one general purpose hardware timer, TIMER_0
   
-  All the timers are based on 64 bits counters and 16 bit prescalers. The timer counters can be configured to count up or down 
-  and support automatic reload and software reload. They can also generate alarms when they reach a specific value, defined by 
-  the software. The value of the counter can be read by the software program.
+  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers. 
+  The timer counters can be configured to count up or down and support automatic reload and software reload. 
+  They can also generate alarms when they reach a specific value, defined by the software. 
+  The value of the counter can be read by the software program.
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
   unsigned long miliseconds), you just consume only one ESP32-S2 timer and avoid conflicting with other cores' tasks.
@@ -21,7 +22,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.2.2
+  Version: 1.3.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -32,6 +33,7 @@
   1.2.0   K Hoang      29/01/2022 Fix multiple-definitions linker error. Improve accuracy. Fix bug
   1.2.1   K Hoang      30/01/2022 DutyCycle to be updated at the end current PWM period
   1.2.2   K Hoang      01/02/2022 Use float for DutyCycle and Freq, uint32_t for period. Optimize code
+  1.3.0   K Hoang      12/02/2022 Add support to new ESP32-S3
 *****************************************************************************************************************************/
 
 #pragma once

@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.3.0](#releases-v130)
   * [Releases v1.2.2](#releases-v122)
   * [Releases v1.2.1](#releases-v121)
   * [Releases v1.2.0](#releases-v120)
@@ -24,6 +25,11 @@
 ---
 
 ## Changelog
+
+### Releases v1.3.0
+
+1. Add support to new `ESP32-S3` (ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, etc.)
+2. Modify examples accordingly
 
 ### Releases v1.2.2
 

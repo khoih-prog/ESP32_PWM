@@ -18,6 +18,7 @@ Please ensure to specify the following:
 * `ESP32` Core Version (e.g. ESP32 core v2.0.2)
 * `ESP32` Board type (e.g. ESP32_DEV Module, etc.)
 * `ESP32-S2` Board type (e.g. ESP32S2_DEV Module, ESP32_S2_Saola, etc.)
+* `ESP32_S3` Board type (e.g. ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, etc.)
 * `ESP32-C3` Board type (e.g. ESP32C3_DEV Module, etc.)
 * Contextual information (e.g. what you were trying to achieve)
 * Simplest possible steps to reproduce
@@ -31,9 +32,9 @@ Please ensure to specify the following:
 ```
 Arduino IDE version: 1.8.19
 ESP32 core v2.0.2
-ESP32S2_DEV Module
+ESP32S3_DEV Module
 OS: Ubuntu 20.04 LTS
-Linux xy-Inspiron-3593 5.4.0-96-generic #109-Ubuntu SMP Wed Jan 12 16:49:16 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+Linux xy-Inspiron-3593 5.4.0-99-generic #112-Ubuntu SMP Thu Feb 3 13:50:55 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
 
 Context:
 I encountered a crash while using TimerInterrupt.

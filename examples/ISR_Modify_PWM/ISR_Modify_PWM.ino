@@ -1,18 +1,19 @@
 /****************************************************************************************************************************
   ISR_Modify_PWM.ino
-  For ESP32, ESP32_S2, ESP32_C3 boards with ESP32 core v2.0.0+
+  For ESP32, ESP32_S2, ESP32_S3, ESP32_C3 boards with ESP32 core v2.0.0+
   Written by Khoi Hoang
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP32_PWM
   Licensed under MIT license
 
-  The ESP32, ESP32_S2, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
-  1) each group of ESP32, ESP32_S2 has two general purpose hardware timers, TIMER_0 and TIMER_1
+  The ESP32, ESP32_S2, ESP32_S3, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
+  1) each group of ESP32, ESP32_S2, ESP32_S3 has two general purpose hardware timers, TIMER_0 and TIMER_1
   2) each group of ESP32_C3 has ony one general purpose hardware timer, TIMER_0
-
-  All the timers are based on 64 bits counters and 16 bit prescalers. The timer counters can be configured to count up or down
-  and support automatic reload and software reload. They can also generate alarms when they reach a specific value, defined by
-  the software. The value of the counter can be read by the software program.
+  
+  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers.  
+  The timer counters can be configured to count up or down and support automatic reload and software reload. 
+  They can also generate alarms when they reach a specific value, defined by the software. 
+  The value of the counter can be read by the software program.
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
   unsigned long miliseconds), you just consume only one ESP32-S2 timer and avoid conflicting with other cores' tasks.
@@ -70,9 +71,9 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 uint32_t PWM_Pin    = LED_BUILTIN;
 
 // You can assign any interval for any timer here, in Hz
-float PWM_Freq1   = 1.0f;
+float PWM_Freq1   = 100.0f;
 // You can assign any interval for any timer here, in Hz
-float PWM_Freq2   = 2.0f;
+float PWM_Freq2   = 200.0f;
 
 // You can assign any interval for any timer here, in microseconds
 uint32_t PWM_Period1 = 1000000 / PWM_Freq1;

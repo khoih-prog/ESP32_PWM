@@ -6,7 +6,7 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#Contributing)
 [![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP32_PWM.svg)](http://github.com/khoih-prog/ESP32_PWM/issues)
 
-<a href="https://www.buymeacoffee.com/khoihprog6" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/khoihprog6" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 181px !important;" ></a>
 
 ---
 ---
@@ -40,15 +40,16 @@
   * [ 6. multiFileProject](examples/multiFileProject) **New**
 * [Example ISR_16_PWMs_Array_Complex](#Example-ISR_16_PWMs_Array_Complex)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
-  * [1. ISR_16_PWMs_Array_Complex on ESP32_DEV](#1-ISR_16_PWMs_Array_Complex-on-ESP32_DEV)
-  * [2. ISR_16_PWMs_Array on ESP32_DEV](#2-ISR_16_PWMs_Array-on-ESP32_DEV)
-  * [3. ISR_16_PWMs_Array_Simple on ESP32_DEV](#3-ISR_16_PWMs_Array_Simple-on-ESP32_DEV)
-  * [4. ISR_Modify_PWM on ESP32_DEV](#4-ISR_Modify_PWM-on-ESP32_DEV)
-  * [5. ISR_Changing_PWM on ESP32_DEV](#5-ISR_Changing_PWM-on-ESP32_DEV)
-  * [6. ISR_Modify_PWM on ESP32S2_DEV](#6-ISR_Modify_PWM-on-ESP32S2_DEV)
-  * [7. ISR_Changing_PWM on ESP32S2_DEV](#7-ISR_Changing_PWM-on-ESP32S2_DEV)
-  * [8. ISR_Modify_PWM on ESP32C3_DEV](#8-ISR_Modify_PWM-on-ESP32C3_DEV)
-  * [9. ISR_Changing_PWM on ESP32C3_DEV](#9-ISR_Changing_PWM-on-ESP32C3_DEV)
+  * [ 1. ISR_16_PWMs_Array_Complex on ESP32_DEV](#1-ISR_16_PWMs_Array_Complex-on-ESP32_DEV)
+  * [ 2. ISR_16_PWMs_Array on ESP32_DEV](#2-ISR_16_PWMs_Array-on-ESP32_DEV)
+  * [ 3. ISR_16_PWMs_Array_Simple on ESP32_DEV](#3-ISR_16_PWMs_Array_Simple-on-ESP32_DEV)
+  * [ 4. ISR_Modify_PWM on ESP32_DEV](#4-ISR_Modify_PWM-on-ESP32_DEV)
+  * [ 5. ISR_Changing_PWM on ESP32_DEV](#5-ISR_Changing_PWM-on-ESP32_DEV)
+  * [ 6. ISR_Modify_PWM on ESP32S2_DEV](#6-ISR_Modify_PWM-on-ESP32S2_DEV)
+  * [ 7. ISR_Changing_PWM on ESP32S2_DEV](#7-ISR_Changing_PWM-on-ESP32S2_DEV)
+  * [ 8. ISR_Modify_PWM on ESP32C3_DEV](#8-ISR_Modify_PWM-on-ESP32C3_DEV)
+  * [ 9. ISR_Changing_PWM on ESP32C3_DEV](#9-ISR_Changing_PWM-on-ESP32C3_DEV)
+  * [10. ISR_16_PWMs_Array_Complex on ESP32S3_DEV](#10-ISR_16_PWMs_Array_Complex-on-ESP32S3_DEV) **New**
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Issues](#issues)
@@ -127,6 +128,8 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 1. ESP32 boards, such as `ESP32_DEV`, etc.
 2. ESP32S2-based boards, such as `ESP32S2_DEV`, `ESP32_S2 Saola`, etc.
 3. ESP32C3-based boards, such as `ESP32C3_DEV`, etc. **New**
+4. ESP32_S3 (ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, etc.) **New**
+
 
 ---
 
@@ -170,7 +173,7 @@ Another way to install is to:
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
-3. Install [**ESP32_PWM** library](https://platformio.org/lib/show/12846/ESP32_PWM) by using [Library Manager](https://platformio.org/lib/show/12846/ESP32_PWM/installation). Search for **ESP32_PWM** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
+3. Install [**ESP32_PWM** library](https://registry.platformio.org/libraries/khoih-prog/ESP32_PWM) by using [Library Manager](https://registry.platformio.org/libraries/khoih-prog/ESP32_PWM/installation). Search for **ESP32_PWM** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
 
@@ -246,9 +249,9 @@ Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master
 
 ### ESP32 Hardware Timers
 
-  - **The ESP32 and ESP32_S2 has two timer groups, each one with two general purpose hardware timers.**
+  - **The ESP32, ESP32_S2 and ESP32_S3 has two timer groups, each one with two general purpose hardware timers.**
   - **The ESP32_C3 has two timer groups, each one with only one general purpose hardware timer.**
-  - All the timers are based on **64-bit counters and 16-bit prescalers.**
+  - All the timers are based on **64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16-bit prescalers.**
   - The timer counters can be configured to count up or down and support automatic reload and software reload.
   - They can also generate alarms when they reach a specific value, defined by the software. 
   - The value of the counter can be read by the software program.
@@ -343,6 +346,8 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 
 #if ( ARDUINO_ESP32C3_DEV )
   #define NUMBER_ISR_PWMS         4
+#elif ( ARDUINO_ESP32S3_DEV )
+  #define NUMBER_ISR_PWMS         16
 #else
   #define NUMBER_ISR_PWMS         16
 #endif
@@ -353,6 +358,12 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D3            3         // Pin D3 mapped to pin GPIO3/RX0 of ESP32
 #define PIN_D4            4         // Pin D4 mapped to pin GPIO4/ADC10/TOUCH0 of ESP32
 #define PIN_D5            5         // Pin D5 mapped to pin GPIO5/SPISS/VSPI_SS of ESP32
+#define PIN_D6            6         // Pin D6 mapped to pin GPIO6 of ESP32
+#define PIN_D7            7         // Pin D7 mapped to pin GPIO7 of ESP32
+#define PIN_D8            8         // Pin D8 mapped to pin GPIO8 of ESP32
+#define PIN_D9            9         // Pin D9 mapped to pin GPIO9 of ESP32
+#define PIN_D10           10        // Pin D10 mapped to pin GPIO10 of ESP32
+#define PIN_D11           11        // Pin D11 mapped to pin GPIO11 of ESP32
 #define PIN_D12           12        // Pin D12 mapped to pin GPIO12/HSPI_MISO/ADC15/TOUCH5/TDI of ESP32
 #define PIN_D13           13        // Pin D13 mapped to pin GPIO13/HSPI_MOSI/ADC14/TOUCH4/TCK of ESP32
 #define PIN_D14           14        // Pin D14 mapped to pin GPIO14/HSPI_SCK/ADC16/TOUCH6/TMS of ESP32
@@ -368,7 +379,7 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D24           24        // Pin D24 mapped to pin GPIO24 of ESP32
 #define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
 #define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
-#define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32   
+#define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32
 
 typedef void (*irqCallback)  ();
 
@@ -392,6 +403,13 @@ uint32_t PWM_Pin[] =
 // Bad pins to use: PIN_D12-PIN_D24
 {
   LED_BUILTIN, PIN_D3,  PIN_D4,  PIN_D5
+};
+#elif ( ARDUINO_ESP32S3_DEV )
+uint32_t PWM_Pin[] =
+// Bad pins to use: PIN_D24
+{
+  PIN_D1, PIN_D2,   PIN_D3,  PIN_D4,  PIN_D5,  PIN_D6,  PIN_D7,  PIN_D8,
+  PIN_D9, PIN_D10,  PIN_D11, PIN_D12, PIN_D13, PIN_D14, PIN_D15, PIN_D16,
 };
 #else
 uint32_t PWM_Pin[] =
@@ -730,12 +748,12 @@ void loop()
 
 ### 1. ISR_16_PWMs_Array_Complex on ESP32_DEV
 
-The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
+The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) on **ESP32_DEV** to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
 
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -799,11 +817,11 @@ PWM Channel : 1520000, programmed Period (us): 20000, actual : 20000, programmed
 
 ### 2. ISR_16_PWMs_Array on ESP32_DEV
 
-The following is the sample terminal output when running example [ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array) to demonstrate how to use multiple Hardware PWM channels.
+The following is the sample terminal output when running example [ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array) on **ESP32_DEV** to demonstrate how to use multiple Hardware PWM channels.
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -834,11 +852,11 @@ Channel : 15	    Period : 20000		OnTime : 19000	Start_Time : 2147367
 
 ### 3. ISR_16_PWMs_Array_Simple on ESP32_DEV
 
-The following is the sample terminal output when running example [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple) to demonstrate how to use multiple Hardware PWM channels.
+The following is the sample terminal output when running example [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple) on **ESP32_DEV** to demonstrate how to use multiple Hardware PWM channels.
 
 ```
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -872,7 +890,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -895,7 +913,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -929,7 +947,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32S2_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -952,7 +970,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32S2_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -974,11 +992,11 @@ Channel : 0	    Period : 500000		OnTime : 450000	Start_Time : 32583648
 
 ### 8. ISR_Modify_PWM on ESP32C3_DEV
 
-The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32S2_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
+The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32C3_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
 
 ```
 Starting ISR_Modify_PWM on ESP32C3_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -998,11 +1016,11 @@ Channel : 0	    Period : 1000000		OnTime : 100000	Start_Time : 42121019
 
 ### 9. ISR_Changing_PWM on ESP32C3_DEV
 
-The following is the sample terminal output when running example [ISR_Changing_PWM](examples/ISR_Changing_PWM) on **ESP32S2_DEV** to demonstrate how to modify PWM settings on-the-fly by deleting the PWM channel and reinit the PWM channel
+The following is the sample terminal output when running example [ISR_Changing_PWM](examples/ISR_Changing_PWM) on **ESP32C3_DEV** to demonstrate how to modify PWM settings on-the-fly by deleting the PWM channel and reinit the PWM channel
 
 ```
 Starting ISR_Changing_PWM on ESP32C3_DEV
-ESP32_PWM v1.2.2
+ESP32_PWM v1.3.0
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -1022,6 +1040,91 @@ Using PWM Freq = 1.00, PWM DutyCycle = 50.00
 Channel : 0	    Period : 1000000		OnTime : 500000	Start_Time : 42127102
 ```
 
+---
+
+### 10. ISR_16_PWMs_Array_Complex on ESP32S3_DEV
+
+The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) on **ESP32S3_DEV**  to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
+
+
+```
+Starting ISR_16_PWMs_Array_Complex on ESP32S3_DEV
+ESP32_PWM v1.3.0
+CPU Frequency = 240 MHz
+[PWM] ESP32_S3_TimerInterrupt: _timerNo = 1 , _fre = 1000000
+[PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
+[PWM] _timerIndex = 1 , _timerGroup = 0
+[PWM] _count = 0 - 20
+[PWM] timer_set_alarm_value = 20.00
+Starting ITimer OK, micros() = 2118162
+Channel : 0	    Period : 1000000		OnTime : 50000	Start_Time : 2118373
+Channel : 1	    Period : 500000		OnTime : 50000	Start_Time : 2128833
+Channel : 2	    Period : 333333		OnTime : 66666	Start_Time : 2129071
+Channel : 3	    Period : 250000		OnTime : 75000	Start_Time : 2139568
+Channel : 4	    Period : 200000		OnTime : 80000	Start_Time : 2150027
+Channel : 5	    Period : 166667		OnTime : 75000	Start_Time : 2150272
+Channel : 6	    Period : 142857		OnTime : 71428	Start_Time : 2160711
+Channel : 7	    Period : 125000		OnTime : 68750	Start_Time : 2160971
+Channel : 8	    Period : 111111		OnTime : 66666	Start_Time : 2171464
+Channel : 9	    Period : 100000		OnTime : 65000	Start_Time : 2171714
+Channel : 10	    Period : 66667		OnTime : 46666	Start_Time : 2182194
+Channel : 11	    Period : 50000		OnTime : 37500	Start_Time : 2192697
+Channel : 12	    Period : 40000		OnTime : 32000	Start_Time : 2192958
+Channel : 13	    Period : 33333		OnTime : 28333	Start_Time : 2203438
+Channel : 14	    Period : 25000		OnTime : 22500	Start_Time : 2203696
+Channel : 15	    Period : 20000		OnTime : 19000	Start_Time : 2214155
+SimpleTimer (ms): 2000, us : 12214398, Dus : 10096157
+PWM Channel : 01000000, programmed Period (us): 1000000, actual : 1000000, programmed DutyCycle : 5.00, actual : 5.00
+PWM Channel : 1500000, programmed Period (us): 500000, actual : 500000, programmed DutyCycle : 10.00, actual : 10.00
+PWM Channel : 2333333, programmed Period (us): 333333, actual : 333340, programmed DutyCycle : 20.00, actual : 20.00
+PWM Channel : 3250000, programmed Period (us): 250000, actual : 249999, programmed DutyCycle : 30.00, actual : 30.00
+PWM Channel : 4200000, programmed Period (us): 200000, actual : 200000, programmed DutyCycle : 40.00, actual : 40.00
+PWM Channel : 5166667, programmed Period (us): 166667, actual : 166680, programmed DutyCycle : 45.00, actual : 45.00
+PWM Channel : 6142857, programmed Period (us): 142857, actual : 142860, programmed DutyCycle : 50.00, actual : 49.99
+PWM Channel : 7125000, programmed Period (us): 125000, actual : 125000, programmed DutyCycle : 55.00, actual : 54.99
+PWM Channel : 8111111, programmed Period (us): 111111, actual : 111120, programmed DutyCycle : 60.00, actual : 59.99
+PWM Channel : 9100000, programmed Period (us): 100000, actual : 100001, programmed DutyCycle : 65.00, actual : 65.00
+PWM Channel : 1066667, programmed Period (us): 66667, actual : 66680, programmed DutyCycle : 70.00, actual : 69.98
+PWM Channel : 1150000, programmed Period (us): 50000, actual : 50000, programmed DutyCycle : 75.00, actual : 75.00
+PWM Channel : 1240000, programmed Period (us): 40000, actual : 40000, programmed DutyCycle : 80.00, actual : 80.00
+PWM Channel : 1333333, programmed Period (us): 33333, actual : 33340, programmed DutyCycle : 85.00, actual : 84.94
+PWM Channel : 1425000, programmed Period (us): 25000, actual : 25000, programmed DutyCycle : 90.00, actual : 90.00
+PWM Channel : 1520000, programmed Period (us): 20000, actual : 19999, programmed DutyCycle : 95.00, actual : 95.00
+SimpleTimer (ms): 2000, us : 22375317, Dus : 10160919
+PWM Channel : 01000000, programmed Period (us): 1000000, actual : 1000000, programmed DutyCycle : 5.00, actual : 5.00
+PWM Channel : 1500000, programmed Period (us): 500000, actual : 500000, programmed DutyCycle : 10.00, actual : 10.00
+PWM Channel : 2333333, programmed Period (us): 333333, actual : 333340, programmed DutyCycle : 20.00, actual : 20.00
+PWM Channel : 3250000, programmed Period (us): 250000, actual : 250001, programmed DutyCycle : 30.00, actual : 30.00
+PWM Channel : 4200000, programmed Period (us): 200000, actual : 200000, programmed DutyCycle : 40.00, actual : 40.00
+PWM Channel : 5166667, programmed Period (us): 166667, actual : 166680, programmed DutyCycle : 45.00, actual : 45.00
+PWM Channel : 6142857, programmed Period (us): 142857, actual : 142860, programmed DutyCycle : 50.00, actual : 49.99
+PWM Channel : 7125000, programmed Period (us): 125000, actual : 125000, programmed DutyCycle : 55.00, actual : 54.99
+PWM Channel : 8111111, programmed Period (us): 111111, actual : 111120, programmed DutyCycle : 60.00, actual : 59.99
+PWM Channel : 9100000, programmed Period (us): 100000, actual : 100000, programmed DutyCycle : 65.00, actual : 65.00
+PWM Channel : 1066667, programmed Period (us): 66667, actual : 66679, programmed DutyCycle : 70.00, actual : 69.98
+PWM Channel : 1150000, programmed Period (us): 50000, actual : 50000, programmed DutyCycle : 75.00, actual : 75.00
+PWM Channel : 1240000, programmed Period (us): 40000, actual : 40000, programmed DutyCycle : 80.00, actual : 80.00
+PWM Channel : 1333333, programmed Period (us): 33333, actual : 33340, programmed DutyCycle : 85.00, actual : 84.94
+PWM Channel : 1425000, programmed Period (us): 25000, actual : 25000, programmed DutyCycle : 90.00, actual : 90.00
+PWM Channel : 1520000, programmed Period (us): 20000, actual : 20000, programmed DutyCycle : 95.00, actual : 95.00
+SimpleTimer (ms): 2000, us : 32536323, Dus : 10161006
+PWM Channel : 01000000, programmed Period (us): 1000000, actual : 1000000, programmed DutyCycle : 5.00, actual : 5.00
+PWM Channel : 1500000, programmed Period (us): 500000, actual : 500000, programmed DutyCycle : 10.00, actual : 10.00
+PWM Channel : 2333333, programmed Period (us): 333333, actual : 333340, programmed DutyCycle : 20.00, actual : 20.00
+PWM Channel : 3250000, programmed Period (us): 250000, actual : 250001, programmed DutyCycle : 30.00, actual : 30.00
+PWM Channel : 4200000, programmed Period (us): 200000, actual : 200000, programmed DutyCycle : 40.00, actual : 40.00
+PWM Channel : 5166667, programmed Period (us): 166667, actual : 166680, programmed DutyCycle : 45.00, actual : 45.00
+PWM Channel : 6142857, programmed Period (us): 142857, actual : 142861, programmed DutyCycle : 50.00, actual : 49.99
+PWM Channel : 7125000, programmed Period (us): 125000, actual : 125000, programmed DutyCycle : 55.00, actual : 54.99
+PWM Channel : 8111111, programmed Period (us): 111111, actual : 111120, programmed DutyCycle : 60.00, actual : 59.99
+PWM Channel : 9100000, programmed Period (us): 100000, actual : 100000, programmed DutyCycle : 65.00, actual : 64.98
+PWM Channel : 1066667, programmed Period (us): 66667, actual : 66680, programmed DutyCycle : 70.00, actual : 69.98
+PWM Channel : 1150000, programmed Period (us): 50000, actual : 50000, programmed DutyCycle : 75.00, actual : 75.00
+PWM Channel : 1240000, programmed Period (us): 40000, actual : 40001, programmed DutyCycle : 80.00, actual : 80.00
+PWM Channel : 1333333, programmed Period (us): 33333, actual : 33340, programmed DutyCycle : 85.00, actual : 84.94
+PWM Channel : 1425000, programmed Period (us): 25000, actual : 25000, programmed DutyCycle : 90.00, actual : 90.01
+PWM Channel : 1520000, programmed Period (us): 20000, actual : 20000, programmed DutyCycle : 95.00, actual : 95.00
+```
 
 ---
 ---
@@ -1075,6 +1178,8 @@ Submit issues to: [ESP32_PWM issues](https://github.com/khoih-prog/ESP32_PWM/iss
  7. Add example [multiFileProject](examples/multiFileProject) to demo for multiple-file project
  8. Improve accuracy by using `float`, instead of `uint32_t` for `dutycycle`
  9. DutyCycle to be optionally updated at the end current PWM period instead of immediately.
+10. Add support to `ESP32-S3`
+
 
 ---
 ---
