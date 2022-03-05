@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.3.1](#releases-v131)
   * [Releases v1.3.0](#releases-v130)
   * [Releases v1.2.2](#releases-v122)
   * [Releases v1.2.1](#releases-v121)
@@ -25,6 +26,12 @@
 ---
 
 ## Changelog
+
+### Releases v1.3.1
+
+1. Fix `DutyCycle` bug. Check [float precisison of DutyCycle only sometimes working #3](https://github.com/khoih-prog/SAMD_Slow_PWM/issues/3)
+2. Fix `New Period` display bug. Check [random dropouts #4](https://github.com/khoih-prog/SAMD_Slow_PWM/issues/4)
+3. Update examples
 
 ### Releases v1.3.0
 
