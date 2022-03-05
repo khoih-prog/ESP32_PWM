@@ -14,13 +14,13 @@
   #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting. 
 #endif
 
-#define ESP32_PWM_VERSION_MIN_TARGET      "ESP32_PWM v1.2.2"
-#define ESP32_PWM_VERSION_MIN             1002002
+#define ESP32_PWM_VERSION_MIN_TARGET      "ESP32_PWM v1.3.1"
+#define ESP32_PWM_VERSION_MIN             1003001
 
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
 // _PWM_LOGLEVEL_ from 0 to 4
 // Don't define _PWM_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define _PWM_LOGLEVEL_                4
+#define _PWM_LOGLEVEL_                3
 
 #include "multiFileProject.h"
 

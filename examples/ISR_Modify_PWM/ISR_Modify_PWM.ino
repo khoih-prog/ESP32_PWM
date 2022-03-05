@@ -29,7 +29,7 @@
 // These define's must be placed at the beginning before #include "ESP32_PWM.h"
 // _PWM_LOGLEVEL_ from 0 to 4
 // Don't define _PWM_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define _PWM_LOGLEVEL_                4
+#define _PWM_LOGLEVEL_                3
 
 #define USING_MICROS_RESOLUTION       true    //false
 
@@ -71,9 +71,9 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 uint32_t PWM_Pin    = LED_BUILTIN;
 
 // You can assign any interval for any timer here, in Hz
-float PWM_Freq1   = 100.0f;
+float PWM_Freq1   = 200.0f;   //1.0f;
 // You can assign any interval for any timer here, in Hz
-float PWM_Freq2   = 200.0f;
+float PWM_Freq2   = 100.0f;   //2.0f;
 
 // You can assign any interval for any timer here, in microseconds
 uint32_t PWM_Period1 = 1000000 / PWM_Freq1;
@@ -81,9 +81,9 @@ uint32_t PWM_Period1 = 1000000 / PWM_Freq1;
 uint32_t PWM_Period2 = 1000000 / PWM_Freq2;
 
 // You can assign any duty_cycle for any PWM here, from 0-100
-float PWM_DutyCycle1  = 10.0;
+float PWM_DutyCycle1  = 1.0f;     //50.0f;
 // You can assign any duty_cycle for any PWM here, from 0-100
-float PWM_DutyCycle2  = 90.0;
+float PWM_DutyCycle2  = 5.55f;    //90.0f;
 
 // Channel number used to identify associated channel
 int channelNum;
