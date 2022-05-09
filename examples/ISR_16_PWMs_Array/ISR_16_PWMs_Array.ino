@@ -103,7 +103,6 @@ bool IRAM_ATTR TimerHandler(void * timerNo)
 #define PIN_D21           21        // Pin D21 mapped to pin GPIO21/SDA of ESP32
 #define PIN_D22           22        // Pin D22 mapped to pin GPIO22/SCL of ESP32
 #define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
-#define PIN_D24           24        // Pin D24 mapped to pin GPIO24 of ESP32
 #define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
 #define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
 #define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32 
@@ -131,10 +130,11 @@ uint32_t PWM_Pin[] =
   PIN_D9, PIN_D10,  PIN_D11, PIN_D12, PIN_D13, PIN_D14, PIN_D15, PIN_D16,
 };
 #else
+// Bad pins to use: PIN_D24
 uint32_t PWM_Pin[] =
 {
-  PIN_D24, LED_BUILTIN,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
-  PIN_D15, PIN_D16,      PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
+  LED_BUILTIN, PIN_D25,  PIN_D3,  PIN_D4,  PIN_D5,  PIN_D12, PIN_D13, PIN_D14,
+  PIN_D15,     PIN_D16,  PIN_D17, PIN_D18, PIN_D19, PIN_D21, PIN_D22, PIN_D23
 };
 #endif
 

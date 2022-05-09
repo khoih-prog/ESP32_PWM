@@ -147,7 +147,7 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ## Prerequisites
 
 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
-2. [`ESP32 Core 2.0.2+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/).
+2. [`ESP32 Core 2.0.3+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/).
 3. [`SimpleTimer library`](https://github.com/jfturcot/SimpleTimer) to use with some examples.
 
 
@@ -309,7 +309,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -377,7 +377,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -412,7 +412,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -446,7 +446,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -482,7 +482,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -516,7 +516,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32S2_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -552,7 +552,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32S2_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -578,7 +578,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32C3_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -614,7 +614,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32C3_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -643,7 +643,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32S3_DEV
-ESP32_PWM v1.3.1
+ESP32_PWM v1.3.2
 CPU Frequency = 240 MHz
 [PWM] ESP32_S3_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -774,6 +774,8 @@ Submit issues to: [ESP32_PWM issues](https://github.com/khoih-prog/ESP32_PWM/iss
  9. DutyCycle to be optionally updated at the end current PWM period instead of immediately.
 10. Add support to `ESP32-S3`
 11. Display informational warning only when `_PWM_LOGLEVEL_` > 3
+12. Remove crashing `PIN_D24` from examples
+
 
 ---
 ---

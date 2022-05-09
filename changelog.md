@@ -12,6 +12,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.3.2](#releases-v132)
   * [Releases v1.3.1](#releases-v131)
   * [Releases v1.3.0](#releases-v130)
   * [Releases v1.2.2](#releases-v122)
@@ -26,6 +27,11 @@
 ---
 
 ## Changelog
+
+### Releases v1.3.2
+
+1. Remove crashing `PIN_D24` from examples
+
 
 ### Releases v1.3.1
 

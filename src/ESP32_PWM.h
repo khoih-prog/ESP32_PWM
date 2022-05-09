@@ -22,7 +22,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.3.1
+  Version: 1.3.2
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -35,6 +35,7 @@
   1.2.2   K Hoang      01/02/2022 Use float for DutyCycle and Freq, uint32_t for period. Optimize code
   1.3.0   K Hoang      12/02/2022 Add support to new ESP32-S3
   1.3.1   K Hoang      04/03/2022 Fix `DutyCycle` and `New Period` display bugs. Display warning only when debug level > 3
+  1.3.2   K Hoang      09/05/2022 Remove crashing PIN_D24 from examples
 *****************************************************************************************************************************/
 
 #pragma once

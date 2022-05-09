@@ -15,7 +15,7 @@ If you don't find anything, please [open a new issue](https://github.com/khoih-p
 Please ensure to specify the following:
 
 * Arduino IDE version (e.g. 1.8.19) or Platform.io version
-* `ESP32` Core Version (e.g. ESP32 core v2.0.2)
+* `ESP32` Core Version (e.g. ESP32 core v2.0.3)
 * `ESP32` Board type (e.g. ESP32_DEV Module, etc.)
 * `ESP32-S2` Board type (e.g. ESP32S2_DEV Module, ESP32_S2_Saola, etc.)
 * `ESP32_S3` Board type (e.g. ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, etc.)
@@ -31,10 +31,10 @@ Please ensure to specify the following:
 
 ```
 Arduino IDE version: 1.8.19
-ESP32 core v2.0.2
+ESP32 core v2.0.3
 ESP32S3_DEV Module
 OS: Ubuntu 20.04 LTS
-Linux xy-Inspiron-3593 5.4.0-100-generic #113-Ubuntu SMP Thu Feb 3 18:43:29 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+Linux xy-Inspiron-3593 5.13.0-40-generic #45~20.04.1-Ubuntu SMP Mon Apr 4 09:38:31 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
 
 Context:
 I encountered a crash while using TimerInterrupt.
