@@ -294,7 +294,7 @@ Before using any Timer, you have to make sure the Timer has not been used by any
 
 ### Example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex)
 
-https://github.com/khoih-prog/ESP32_PWM/blob/8ec2d60c4f49727e911b6722c46c455c1cbcf457/examples/ISR_16_PWMs_Array_Complex/ISR_16_PWMs_Array_Complex.ino#L25-L470
+https://github.com/khoih-prog/ESP32_PWM/blob/bf025f27e40c4b70687cd61a320a63c98bb724ba/examples/ISR_16_PWMs_Array_Complex/ISR_16_PWMs_Array_Complex.ino#L25-L471
 
 
 ---
