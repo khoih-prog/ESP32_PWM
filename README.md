@@ -127,9 +127,9 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ### Currently supported Boards
 
 1. ESP32 boards, such as `ESP32_DEV`, etc.
-2. ESP32S2-based boards, such as `ESP32S2_DEV`, `ESP32_S2 Saola`, etc.
+2. ESP32S2-based boards, such as `ESP32S2_DEV`, `ESP32_S2 Saola`, Adafruit QTPY_ESP32S2, etc.
 3. ESP32C3-based boards, such as `ESP32C3_DEV`, etc. **New**
-4. ESP32_S3 (ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, etc.) **New**
+4. ESP32_S3 (ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, FEATHER_ESP32S3_NOPSRAM and QTPY_ESP32S3_NOPSRAM, etc.) **New**
 
 
 ---
@@ -309,7 +309,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -377,7 +377,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array on ESP32_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -412,7 +412,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -446,7 +446,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -482,7 +482,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -516,7 +516,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32S2_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -552,7 +552,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32S2_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_S2_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -578,7 +578,7 @@ The following is the sample terminal output when running example [ISR_Modify_PWM
 
 ```
 Starting ISR_Modify_PWM on ESP32C3_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -614,7 +614,7 @@ The following is the sample terminal output when running example [ISR_Changing_P
 
 ```
 Starting ISR_Changing_PWM on ESP32C3_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 160 MHz
 [PWM] ESP32_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80
@@ -643,7 +643,7 @@ The following is the sample terminal output when running example [ISR_16_PWMs_Ar
 
 ```
 Starting ISR_16_PWMs_Array_Complex on ESP32S3_DEV
-ESP32_PWM v1.3.2
+ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
 [PWM] ESP32_S3_TimerInterrupt: _timerNo = 1 , _fre = 1000000
 [PWM] TIMER_BASE_CLK = 80000000 , TIMER_DIVIDER = 80

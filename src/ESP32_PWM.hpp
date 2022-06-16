@@ -22,7 +22,7 @@
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
 
-  Version: 1.3.2
+  Version: 1.3.3
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -36,6 +36,7 @@
   1.3.0   K Hoang      12/02/2022 Add support to new ESP32-S3
   1.3.1   K Hoang      04/03/2022 Fix `DutyCycle` and `New Period` display bugs. Display warning only when debug level > 3
   1.3.2   K Hoang      09/05/2022 Remove crashing PIN_D24 from examples
+  1.3.3   K Hoang      16/06/2022 Add support to new Adafruit boards
 *****************************************************************************************************************************/
 
 #pragma once
@@ -48,11 +49,12 @@
 #endif
 
 #if ( ARDUINO_ESP32S2_DEV || ARDUINO_FEATHERS2 || ARDUINO_ESP32S2_THING_PLUS || ARDUINO_MICROS2 || \
-        ARDUINO_METRO_ESP32S2 || ARDUINO_MAGTAG29_ESP32S2 || ARDUINO_FUNHOUSE_ESP32S2 || \
-        ARDUINO_ADAFRUIT_FEATHER_ESP32S2_NOPSRAM )
+      ARDUINO_METRO_ESP32S2 || ARDUINO_MAGTAG29_ESP32S2 || ARDUINO_FUNHOUSE_ESP32S2 || \
+      ARDUINO_ADAFRUIT_FEATHER_ESP32S2_NOPSRAM || ARDUINO_ADAFRUIT_QTPY_ESP32S2)
   #define USING_ESP32_S2_PWM         true
 #elif ( defined(ARDUINO_ESP32S3_DEV) || defined(ARDUINO_ESP32_S3_BOX) || defined(ARDUINO_TINYS3) || \
-        defined(ARDUINO_PROS3) || defined(ARDUINO_FEATHERS3) )
+        defined(ARDUINO_PROS3) || defined(ARDUINO_FEATHERS3) || defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S3_NOPSRAM) || \
+        defined(ARDUINO_ADAFRUIT_QTPY_ESP32S3_NOPSRAM))
   #define USING_ESP32_S3_PWM         true  
 #elif ( ARDUINO_ESP32C3_DEV )
   #define USING_ESP32_C3_PWM         true 
@@ -71,13 +73,13 @@
 #endif
 
 #ifndef ESP32_PWM_VERSION
-  #define ESP32_PWM_VERSION           "ESP32_PWM v1.3.2"
+  #define ESP32_PWM_VERSION           "ESP32_PWM v1.3.3"
   
   #define ESP32_PWM_VERSION_MAJOR     1
   #define ESP32_PWM_VERSION_MINOR     3
-  #define ESP32_PWM_VERSION_PATCH     2
+  #define ESP32_PWM_VERSION_PATCH     3
 
-  #define ESP32_PWM_VERSION_INT       1003002
+  #define ESP32_PWM_VERSION_INT       1003003
 #endif
 
 #ifndef TIMER_INTERRUPT_DEBUG
