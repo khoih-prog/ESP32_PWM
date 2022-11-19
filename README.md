@@ -2,12 +2,16 @@
 
 [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32_PWM.svg?)](https://www.ardu-badge.com/ESP32_PWM)
 [![GitHub release](https://img.shields.io/github/release/khoih-prog/ESP32_PWM.svg)](https://github.com/khoih-prog/ESP32_PWM/releases)
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/khoih-prog/ESP32_PWM/blob/master/LICENSE)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/khoih-prog/ESP32_PWM/blob/main/LICENSE)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#Contributing)
 [![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP32_PWM.svg)](http://github.com/khoih-prog/ESP32_PWM/issues)
 
+
 <a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Donate to my libraries using BuyMeACoffee" style="height: 50px !important;width: 181px !important;" ></a>
 <a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://img.shields.io/badge/buy%20me%20a%20coffee-donate-orange.svg?logo=buy-me-a-coffee&logoColor=FFDD00" style="height: 20px !important;width: 200px !important;" ></a>
+<a href="https://profile-counter.glitch.me/khoih-prog/count.svg" title="Total khoih-prog Visitor count"><img src="https://profile-counter.glitch.me/khoih-prog/count.svg" style="height: 30px;width: 200px;"></a>
+<a href="https://profile-counter.glitch.me/khoih-prog-ESP32_PWM/count.svg" title="ESP32_PWM Visitor count"><img src="https://profile-counter.glitch.me/khoih-prog-ESP32_PWM/count.svg" style="height: 30px;width: 200px;"></a>
+
 
 ---
 ---
@@ -73,7 +77,7 @@ As more complex calculation and check **inside ISR** are introduced from v1.2.0,
 You can modify to use larger `HW_TIMER_INTERVAL_US`, (from current 20uS), according to your board and use-case if crash happens.
 
 
-```
+```cpp
 // Current 20uS
 #define HW_TIMER_INTERVAL_US      20L
 ```
@@ -127,9 +131,9 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ### Currently supported Boards
 
 1. ESP32 boards, such as `ESP32_DEV`, etc.
-2. ESP32S2-based boards, such as `ESP32S2_DEV`, `ESP32_S2 Saola`, Adafruit QTPY_ESP32S2, etc.
-3. ESP32C3-based boards, such as `ESP32C3_DEV`, etc. **New**
-4. ESP32_S3 (ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, FEATHER_ESP32S3_NOPSRAM and QTPY_ESP32S3_NOPSRAM, etc.) **New**
+2. ESP32_S2-based boards, such as `ESP32S2_DEV`, `ESP32_S2 Saola`, Adafruit QTPY_ESP32S2, ESP32S2 Native USB, UM FeatherS2 Neo, UM TinyS2, UM RMP, microS2, etc.
+3. ESP32_C3-based boards, such as `ESP32C3_DEV`, LOLIN_C3_MINI, DFROBOT_BEETLE_ESP32_C3, ADAFRUIT_QTPY_ESP32C3, AirM2M_CORE_ESP32C3, XIAO_ESP32C3, etc. **New**
+4. ESP32_S3-based boards, such as ESP32S3_DEV, ESP32_S3_BOX, UM TINYS3, UM PROS3, UM FEATHERS3, FEATHER_ESP32S3_NOPSRAM, QTPY_ESP32S3_NOPSRAM, etc. **New**
 
 
 ---
@@ -147,7 +151,7 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ## Prerequisites
 
 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
-2. [`ESP32 Core 2.0.3+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/).
+2. [`ESP32 Core 2.0.5+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/).
 3. [`SimpleTimer library`](https://github.com/jfturcot/SimpleTimer) to use with some examples.
 
 
@@ -166,9 +170,9 @@ You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/
 Another way to install is to:
 
 1. Navigate to [**ESP32_PWM**](https://github.com/khoih-prog/ESP32_PWM) page.
-2. Download the latest release `ESP32_PWM-master.zip`.
-3. Extract the zip file to `ESP32_PWM-master` directory 
-4. Copy whole `ESP32_PWM-master` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
+2. Download the latest release `ESP32_PWM-main.zip`.
+3. Extract the zip file to `ESP32_PWM-main` directory 
+4. Copy whole `ESP32_PWM-main` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
 
 ### VS Code & PlatformIO
 
@@ -188,14 +192,14 @@ The current library implementation, using `xyz-Impl.h` instead of standard `xyz.
 
 You can include this `.hpp` file
 
-```
+```cpp
 // Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "ESP32_PWM.hpp"     //https://github.com/khoih-prog/ESP32_PWM
 ```
 
 in many files. But be sure to use the following `.h` file **in just 1 `.h`, `.cpp` or `.ino` file**, which must **not be included in any other file**, to avoid `Multiple Definitions` Linker Error
 
-```
+```cpp
 // To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_PWM.h"           //https://github.com/khoih-prog/ESP32_PWM
 ```
@@ -215,22 +219,22 @@ Please have a look at [**ESP_WiFiManager Issue 39: Not able to read analog port 
 
 #### 2. ESP32 ADCs functions
 
-- ADC1 controls ADC function for pins **GPIO32-GPIO39**
-- ADC2 controls ADC function for pins **GPIO0, 2, 4, 12-15, 25-27**
+- `ADC1` controls ADC function for pins **GPIO32-GPIO39**
+- `ADC2` controls ADC function for pins **GPIO0, 2, 4, 12-15, 25-27**
 
 #### 3.. ESP32 WiFi uses ADC2 for WiFi functions
 
-Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master/components/driver/adc_common.c#L61)
+Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master/components/driver/adc_common.c)
 
-> In ADC2, there're two locks used for different cases:
+> In `ADC2`, there're two locks used for different cases:
 > 1. lock shared with app and Wi-Fi:
 >    ESP32:
->         When Wi-Fi using the ADC2, we assume it will never stop, so app checks the lock and returns immediately if failed.
+>         When Wi-Fi using the `ADC2`, we assume it will never stop, so app checks the lock and returns immediately if failed.
 >    ESP32S2:
 >         The controller's control over the ADC is determined by the arbiter. There is no need to control by lock.
 > 
 > 2. lock shared between tasks:
->    when several tasks sharing the ADC2, we want to guarantee
+>    when several tasks sharing the `ADC2`, we want to guarantee
 >    all the requests will be handled.
 >    Since conversions are short (about 31us), app returns the lock very soon,
 >    we use a spinlock to stand there waiting to do conversions one by one.
@@ -238,10 +242,10 @@ Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master
 > adc2_spinlock should be acquired first, then adc2_wifi_lock or rtc_spinlock.
 
 
-- In order to use ADC2 for other functions, we have to **acquire complicated firmware locks and very difficult to do**
-- So, it's not advisable to use ADC2 with WiFi/BlueTooth (BT/BLE).
-- Use ADC1, and pins GPIO32-GPIO39
-- If somehow it's a must to use those pins serviced by ADC2 (**GPIO0, 2, 4, 12, 13, 14, 15, 25, 26 and 27**), use the **fix mentioned at the end** of [**ESP_WiFiManager Issue 39: Not able to read analog port when using the autoconnect example**](https://github.com/khoih-prog/ESP_WiFiManager/issues/39) to work with ESP32 WiFi/BlueTooth (BT/BLE).
+- In order to use `ADC2` for other functions, we have to **acquire complicated firmware locks and very difficult to do**
+- So, it's not advisable to use `ADC2` with WiFi/BlueTooth (BT/BLE).
+- Use `ADC1`, and pins `GPIO32-GPIO39`
+- If somehow it's a must to use those pins serviced by `ADC2` (**GPIO0, 2, 4, 12, 13, 14, 15, 25, 26 and 27**), use the **fix mentioned at the end** of [**ESP_WiFiManager Issue 39: Not able to read analog port when using the autoconnect example**](https://github.com/khoih-prog/ESP_WiFiManager/issues/39) to work with ESP32 WiFi/BlueTooth (BT/BLE).
 
 ---
 ---
@@ -266,7 +270,7 @@ The [**ISR_16_PWMs_Array_Complex**](examples/ISR_16_PWMs_Array_Complex) example 
 Being ISR-based PWM-channels, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet and Blynk services. You can also have many `(up to 16)` synchronized PWM-channels to use.
 This non-being-blocked important feature is absolutely necessary for mission-critical tasks. 
 You'll see `SimpleTimer` is blocked while system is connecting to WiFi / Internet / Blynk, as well as by blocking task 
-in loop(), using delay() function as an example. The elapsed time then is very unaccurate
+in `loop()`, using `delay()` function as an example. The elapsed time then is very unaccurate
 
 ---
 ---
@@ -307,7 +311,7 @@ https://github.com/khoih-prog/ESP32_PWM/blob/bf025f27e40c4b70687cd61a320a63c98bb
 The following is the sample terminal output when running example [ISR_16_PWMs_Array_Complex](examples/ISR_16_PWMs_Array_Complex) on **ESP32_DEV** to demonstrate the accuracy of ISR Hardware PWM-channels, **especially when system is very busy**.  The ISR PWM-channels is **running exactly according to corresponding programmed periods and duty-cycles**
 
 
-```
+```cpp
 Starting ISR_16_PWMs_Array_Complex on ESP32_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -375,7 +379,7 @@ PWM Channel : 1520000, programmed Period (us): 20000, actual : 20000, programmed
 
 The following is the sample terminal output when running example [ISR_16_PWMs_Array](examples/ISR_16_PWMs_Array) on **ESP32_DEV** to demonstrate how to use multiple Hardware PWM channels.
 
-```
+```cpp
 Starting ISR_16_PWMs_Array on ESP32_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -410,7 +414,7 @@ Channel : 15	    Period : 20000		OnTime : 19000	Start_Time : 2147367
 
 The following is the sample terminal output when running example [ISR_16_PWMs_Array_Simple](examples/ISR_16_PWMs_Array_Simple) on **ESP32_DEV** to demonstrate how to use multiple Hardware PWM channels.
 
-```
+```cpp
 Starting ISR_16_PWMs_Array_Simple on ESP32_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -444,7 +448,7 @@ Channel : 15	    Period : 20000		OnTime : 19000	Start_Time : 2156993
 
 The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
 
-```
+```cpp
 Starting ISR_Modify_PWM on ESP32_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -480,7 +484,7 @@ Channel : 0	    Period : 5000		OnTime : 50	Start_Time : 162080208
 
 The following is the sample terminal output when running example [ISR_Changing_PWM](examples/ISR_Changing_PWM) on **ESP32_DEV** to demonstrate how to modify PWM settings on-the-fly by deleting the PWM channel and reinit the PWM channel
 
-```
+```cpp
 Starting ISR_Changing_PWM on ESP32_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -514,7 +518,7 @@ Channel : 0	    Period : 500000		OnTime : 450000	Start_Time : 72070329
 
 The following is the sample terminal output when running example [ISR_Modify_PWM](examples/ISR_Modify_PWM) on **ESP32S2_DEV** to demonstrate how to modify PWM settings on-the-fly without deleting the PWM channel
 
-```
+```cpp
 Starting ISR_Modify_PWM on ESP32S2_DEV
 ESP32_PWM v1.3.3
 CPU Frequency = 240 MHz
@@ -799,7 +803,7 @@ If you want to contribute to this project:
 
 ### License
 
-- The library is licensed under [MIT](https://github.com/khoih-prog/ESP32_PWM/blob/master/LICENSE)
+- The library is licensed under [MIT](https://github.com/khoih-prog/ESP32_PWM/blob/main/LICENSE)
 
 ---
 

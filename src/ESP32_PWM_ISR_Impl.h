@@ -9,10 +9,10 @@
   The ESP32, ESP32_S2, ESP32_S3, ESP32_C3 have two timer groups, TIMER_GROUP_0 and TIMER_GROUP_1
   1) each group of ESP32, ESP32_S2, ESP32_S3 has two general purpose hardware timers, TIMER_0 and TIMER_1
   2) each group of ESP32_C3 has ony one general purpose hardware timer, TIMER_0
-  
-  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers. 
-  The timer counters can be configured to count up or down and support automatic reload and software reload. 
-  They can also generate alarms when they reach a specific value, defined by the software. 
+
+  All the timers are based on 64-bit counters (except 54-bit counter for ESP32_S3 counter) and 16 bit prescalers.
+  The timer counters can be configured to count up or down and support automatic reload and software reload.
+  They can also generate alarms when they reach a specific value, defined by the software.
   The value of the counter can be read by the software program.
 
   Now even you use all these new 16 ISR-based timers,with their maximum interval practically unlimited (limited only by
@@ -45,19 +45,19 @@
 
 #include <string.h>
 
-/////////////////////////////////////////////////// 
+///////////////////////////////////////////////////
 
 
 uint64_t IRAM_ATTR timeNow()
 {
-#if USING_MICROS_RESOLUTION  
+#if USING_MICROS_RESOLUTION
   return ( (uint64_t) micros() );
 #else
   return ( (uint64_t) millis() );
-#endif    
+#endif
 }
-  
-/////////////////////////////////////////////////// 
+
+///////////////////////////////////////////////////
 
 ESP32_PWM_ISR::ESP32_PWM_ISR()
   : numChannels (-1)
@@ -66,17 +66,17 @@ ESP32_PWM_ISR::ESP32_PWM_ISR()
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::init() 
+void ESP32_PWM_ISR::init()
 {
   uint64_t currentTime = timeNow();
-   
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
+
+  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++)
   {
     memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
     PWM[channelNum].prevTime = currentTime;
     PWM[channelNum].pin      = INVALID_ESP32_PIN;
   }
-  
+
   numChannels = 0;
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
@@ -85,27 +85,27 @@ void ESP32_PWM_ISR::init()
 
 ///////////////////////////////////////////////////
 
-void IRAM_ATTR ESP32_PWM_ISR::run() 
-{ 
+void IRAM_ATTR ESP32_PWM_ISR::run()
+{
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during ISR
   portENTER_CRITICAL_ISR(&PWM_Mux);
-    
+
   uint64_t currentTime = timeNow();
 
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
+  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++)
   {
     // If enabled => check
     // start period / dutyCycle => digitalWrite HIGH
     // end dutyCycle =>  digitalWrite LOW
-    if (PWM[channelNum].enabled) 
+    if (PWM[channelNum].enabled)
     {
-      if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) <= PWM[channelNum].onTime ) 
-      {              
+      if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) <= PWM[channelNum].onTime )
+      {
         if (!PWM[channelNum].pinHigh)
         {
           digitalWrite(PWM[channelNum].pin, HIGH);
           PWM[channelNum].pinHigh = true;
-          
+
           // callbackStart
           if (PWM[channelNum].callbackStart != nullptr)
           {
@@ -113,13 +113,13 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
           }
         }
       }
-      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) < PWM[channelNum].period ) 
+      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) < PWM[channelNum].period )
       {
         if (PWM[channelNum].pinHigh)
         {
           digitalWrite(PWM[channelNum].pin, LOW);
           PWM[channelNum].pinHigh = false;
-          
+
           // callback when PWM pulse stops (LOW)
           if (PWM[channelNum].callbackStop != nullptr)
           {
@@ -127,22 +127,24 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
           }
         }
       }
-      //else 
-      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) >= PWM[channelNum].period )   
+      //else
+      else if ( (uint32_t) (currentTime - PWM[channelNum].prevTime) >= PWM[channelNum].period )
       {
         PWM[channelNum].prevTime = currentTime;
-        
+
 #if CHANGING_PWM_END_OF_CYCLE
+
         // Only update whenever having newPeriod
         if (PWM[channelNum].newPeriod != 0)
         {
           PWM[channelNum].period    = PWM[channelNum].newPeriod;
           PWM[channelNum].newPeriod = 0;
-          
+
           PWM[channelNum].onTime  = PWM[channelNum].newOnTime;
         }
+
 #endif
-      }        
+      }
     }
   }
 
@@ -155,16 +157,16 @@ void IRAM_ATTR ESP32_PWM_ISR::run()
 
 // find the first available slot
 // return -1 if none found
-int ESP32_PWM_ISR::findFirstFreeSlot() 
+int ESP32_PWM_ISR::findFirstFreeSlot()
 {
   // all slots are used
-  if (numChannels >= MAX_NUMBER_CHANNELS) 
+  if (numChannels >= MAX_NUMBER_CHANNELS)
   {
     return -1;
   }
 
   // return the first slot with no callbackStart (i.e. free)
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
+  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++)
   {
     if ( (PWM[channelNum].period == 0) && !PWM[channelNum].enabled )
     {
@@ -178,10 +180,11 @@ int ESP32_PWM_ISR::findFirstFreeSlot()
 
 ///////////////////////////////////////////////////
 
-int ESP32_PWM_ISR::setupPWMChannel(const uint32_t& pin, const uint32_t& period, const float& dutycycle, void* cbStartFunc, void* cbStopFunc)
+int ESP32_PWM_ISR::setupPWMChannel(const uint32_t& pin, const uint32_t& period, const float& dutycycle,
+                                   void* cbStartFunc, void* cbStopFunc)
 {
   int channelNum;
-  
+
   // Invalid input, such as period = 0, etc
   if ( (period == 0) || (dutycycle < 0.0) || (dutycycle > 100.0) )
   {
@@ -189,56 +192,61 @@ int ESP32_PWM_ISR::setupPWMChannel(const uint32_t& pin, const uint32_t& period, 
     return -1;
   }
 
-  if (numChannels < 0) 
+  if (numChannels < 0)
   {
     init();
   }
- 
+
   channelNum = findFirstFreeSlot();
-  
-  if (channelNum < 0) 
+
+  if (channelNum < 0)
   {
     return -1;
   }
-  
+
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
 
   PWM[channelNum].pin           = pin;
   PWM[channelNum].period        = period;
-  
+
   // Must be 0 for new PWM channel
   PWM[channelNum].newPeriod     = 0;
-  
+
   PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
-  
+
   pinMode(pin, OUTPUT);
   digitalWrite(pin, HIGH);
   PWM[channelNum].pinHigh       = true;
-  
+
   PWM[channelNum].prevTime      = timeNow();
-  
+
   PWM[channelNum].callbackStart = cbStartFunc;
   PWM[channelNum].callbackStop  = cbStopFunc;
-  
+
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portEXIT_CRITICAL(&PWM_Mux);
-   
-  PWM_LOGINFO0("Channel : ");      PWM_LOGINFO0(channelNum); 
-  PWM_LOGINFO0("\t    Period : "); PWM_LOGINFO0(PWM[channelNum].period);
-  PWM_LOGINFO0("\t\tOnTime : ");   PWM_LOGINFO0(PWM[channelNum].onTime); 
-  PWM_LOGINFO0("\tStart_Time : "); PWM_LOGINFOLN0(PWM[channelNum].prevTime);
- 
+
+  PWM_LOGINFO0("Channel : ");
+  PWM_LOGINFO0(channelNum);
+  PWM_LOGINFO0("\t    Period : ");
+  PWM_LOGINFO0(PWM[channelNum].period);
+  PWM_LOGINFO0("\t\tOnTime : ");
+  PWM_LOGINFO0(PWM[channelNum].onTime);
+  PWM_LOGINFO0("\tStart_Time : ");
+  PWM_LOGINFOLN0(PWM[channelNum].prevTime);
+
   numChannels++;
-  
+
   PWM[channelNum].enabled      = true;
-  
+
   return channelNum;
 }
 
 ///////////////////////////////////////////////////
 
-bool ESP32_PWM_ISR::modifyPWMChannel_Period(const uint8_t& channelNum, const uint32_t& pin, const uint32_t& period, const float& dutycycle)
+bool ESP32_PWM_ISR::modifyPWMChannel_Period(const uint8_t& channelNum, const uint32_t& pin, const uint32_t& period,
+                                            const float& dutycycle)
 {
   // Invalid input, such as period = 0, etc
   if ( (period == 0) || (dutycycle < 0.0) || (dutycycle > 100.0) )
@@ -247,13 +255,13 @@ bool ESP32_PWM_ISR::modifyPWMChannel_Period(const uint8_t& channelNum, const uin
     return false;
   }
 
-  if (channelNum > MAX_NUMBER_CHANNELS) 
+  if (channelNum > MAX_NUMBER_CHANNELS)
   {
     PWM_LOGERROR("Error: channelNum > MAX_NUMBER_CHANNELS");
     return false;
   }
-  
-  if (PWM[channelNum].pin != pin) 
+
+  if (PWM[channelNum].pin != pin)
   {
     PWM_LOGERROR("Error: channelNum and pin mismatched");
     return false;
@@ -267,42 +275,50 @@ bool ESP32_PWM_ISR::modifyPWMChannel_Period(const uint8_t& channelNum, const uin
   PWM[channelNum].newPeriod     = period;
   PWM[channelNum].newDutyCycle  = dutycycle;
   PWM[channelNum].newOnTime     = ( period * dutycycle ) / 100;
-  
+
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portEXIT_CRITICAL(&PWM_Mux);
-  
-  PWM_LOGINFO0("Channel : ");      PWM_LOGINFO0(channelNum); 
-  PWM_LOGINFO0("\t    Period : "); PWM_LOGINFO0(period);
-  PWM_LOGINFO0("\t\tOnTime : ");   PWM_LOGINFO0(PWM[channelNum].newOnTime); 
-  PWM_LOGINFO0("\tStart_Time : "); PWM_LOGINFOLN0(PWM[channelNum].prevTime);
-  
+
+  PWM_LOGINFO0("Channel : ");
+  PWM_LOGINFO0(channelNum);
+  PWM_LOGINFO0("\t    Period : ");
+  PWM_LOGINFO0(period);
+  PWM_LOGINFO0("\t\tOnTime : ");
+  PWM_LOGINFO0(PWM[channelNum].newOnTime);
+  PWM_LOGINFO0("\tStart_Time : ");
+  PWM_LOGINFOLN0(PWM[channelNum].prevTime);
+
 #else
-    
+
   PWM[channelNum].period        = period;
   PWM[channelNum].onTime        = ( period * dutycycle ) / 100;
-  
+
   digitalWrite(pin, HIGH);
   PWM[channelNum].pinHigh       = true;
-  
+
   PWM[channelNum].prevTime      = timeNow();
-  
+
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portEXIT_CRITICAL(&PWM_Mux);
-   
-  PWM_LOGINFO0("Channel : ");      PWM_LOGINFO0(channelNum); 
-  PWM_LOGINFO0("\t    Period : "); PWM_LOGINFO0(PWM[channelNum].period);
-  PWM_LOGINFO0("\t\tOnTime : ");   PWM_LOGINFO0(PWM[channelNum].onTime); 
-  PWM_LOGINFO0("\tStart_Time : "); PWM_LOGINFOLN0(PWM[channelNum].prevTime);
-  
+
+  PWM_LOGINFO0("Channel : ");
+  PWM_LOGINFO0(channelNum);
+  PWM_LOGINFO0("\t    Period : ");
+  PWM_LOGINFO0(PWM[channelNum].period);
+  PWM_LOGINFO0("\t\tOnTime : ");
+  PWM_LOGINFO0(PWM[channelNum].onTime);
+  PWM_LOGINFO0("\tStart_Time : ");
+  PWM_LOGINFOLN0(PWM[channelNum].prevTime);
+
 #endif
-  
+
   return true;
 }
 
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::deleteChannel(const uint8_t& channelNum) 
+void ESP32_PWM_ISR::deleteChannel(const uint8_t& channelNum)
 {
   // nothing to delete if no timers are in use
   if ( (channelNum >= MAX_NUMBER_CHANNELS)  || (numChannels == 0) )
@@ -317,9 +333,9 @@ void ESP32_PWM_ISR::deleteChannel(const uint8_t& channelNum)
     portENTER_CRITICAL(&PWM_Mux);
 
     memset((void*) &PWM[channelNum], 0, sizeof (PWM_t));
-    
+
     PWM[channelNum].pin = INVALID_ESP32_PIN;
-    
+
     // update number of timers
     numChannels--;
 
@@ -332,9 +348,9 @@ void ESP32_PWM_ISR::deleteChannel(const uint8_t& channelNum)
 ///////////////////////////////////////////////////
 
 // function contributed by code@rowansimms.com
-void ESP32_PWM_ISR::restartChannel(const uint8_t& channelNum) 
+void ESP32_PWM_ISR::restartChannel(const uint8_t& channelNum)
 {
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
+  if (channelNum >= MAX_NUMBER_CHANNELS)
   {
     return;
   }
@@ -350,9 +366,9 @@ void ESP32_PWM_ISR::restartChannel(const uint8_t& channelNum)
 
 ///////////////////////////////////////////////////
 
-bool ESP32_PWM_ISR::isEnabled(const uint8_t& channelNum) 
+bool ESP32_PWM_ISR::isEnabled(const uint8_t& channelNum)
 {
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
+  if (channelNum >= MAX_NUMBER_CHANNELS)
   {
     return false;
   }
@@ -362,9 +378,9 @@ bool ESP32_PWM_ISR::isEnabled(const uint8_t& channelNum)
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::enable(const uint8_t& channelNum) 
+void ESP32_PWM_ISR::enable(const uint8_t& channelNum)
 {
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
+  if (channelNum >= MAX_NUMBER_CHANNELS)
   {
     return;
   }
@@ -374,9 +390,9 @@ void ESP32_PWM_ISR::enable(const uint8_t& channelNum)
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::disable(const uint8_t& channelNum) 
+void ESP32_PWM_ISR::disable(const uint8_t& channelNum)
 {
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
+  if (channelNum >= MAX_NUMBER_CHANNELS)
   {
     return;
   }
@@ -386,14 +402,14 @@ void ESP32_PWM_ISR::disable(const uint8_t& channelNum)
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::enableAll() 
+void ESP32_PWM_ISR::enableAll()
 {
   // Enable all timers with a callbackStart assigned (used)
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
 
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
+  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++)
   {
     if (PWM[channelNum].period != 0)
     {
@@ -407,14 +423,14 @@ void ESP32_PWM_ISR::enableAll()
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::disableAll() 
+void ESP32_PWM_ISR::disableAll()
 {
   // Disable all timers with a callbackStart assigned (used)
 
   // ESP32 is a multi core / multi processing chip. It is mandatory to disable task switches during modifying shared vars
   portENTER_CRITICAL(&PWM_Mux);
 
-  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++) 
+  for (uint8_t channelNum = 0; channelNum < MAX_NUMBER_CHANNELS; channelNum++)
   {
     if (PWM[channelNum].period != 0)
     {
@@ -429,9 +445,9 @@ void ESP32_PWM_ISR::disableAll()
 
 ///////////////////////////////////////////////////
 
-void ESP32_PWM_ISR::toggle(const uint8_t& channelNum) 
+void ESP32_PWM_ISR::toggle(const uint8_t& channelNum)
 {
-  if (channelNum >= MAX_NUMBER_CHANNELS) 
+  if (channelNum >= MAX_NUMBER_CHANNELS)
   {
     return;
   }
@@ -441,7 +457,7 @@ void ESP32_PWM_ISR::toggle(const uint8_t& channelNum)
 
 ///////////////////////////////////////////////////
 
-int8_t ESP32_PWM_ISR::getnumChannels() 
+int8_t ESP32_PWM_ISR::getnumChannels()
 {
   return numChannels;
 }
